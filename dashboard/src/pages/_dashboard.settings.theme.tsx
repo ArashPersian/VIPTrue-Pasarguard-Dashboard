@@ -22,7 +22,7 @@ import {
 import { isPersianLocaleLanguage } from '@/utils/datePickerUtils'
 
 const colorThemeData = [
-  { name: 'default', label: 'theme.default', dot: '#2563eb' },
+  { name: 'default', label: 'theme.default', dot: '#ff3d8d' },
   { name: 'red', label: 'theme.red', dot: '#ef4444' },
   { name: 'rose', label: 'theme.rose', dot: '#e11d48' },
   { name: 'orange', label: 'theme.orange', dot: '#f97316' },
@@ -185,7 +185,7 @@ export default function ThemeSettings() {
         description: '🔄 ' + t('theme.resetSuccess'),
         duration: 3000,
       })
-    } catch (error) {
+    } catch {
       toast.error(t('error'), {
         description: '❌ ' + t('theme.resetFailed'),
         duration: 3000,
