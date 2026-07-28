@@ -40,6 +40,7 @@
 - Built bundle checks for `color-theme`, `dataset.colorTheme`, the default pink
   token and the adaptive themed background
 - Release archive layout and independent SHA256 verification
+- GitHub `VIPTrue Dashboard CI` run `#7` passed on PR head `4eaca16`
 
 Known upstream baseline: the full `v5.1.0` TypeScript check has existing
 generated API, core-kit and form typing failures. These are not caused by the
@@ -47,7 +48,6 @@ VIPTrue compatibility patches and are not used as a release gate.
 
 ## Remaining work
 
-- Wait for GitHub CI on the latest Draft PR #2 head
 - Review the final PR diff and merge it into `viptrue/v5.1.0`
 - Publish and independently verify `v5.1.0-custom.2`
 - Install the patch release with the versioned installer
@@ -56,5 +56,5 @@ VIPTrue compatibility patches and are not used as a release gate.
 
 ## Next exact step
 
-Confirm GitHub CI passes for Draft PR #2, then merge the PR and create the
+Merge Draft PR #2 into `viptrue/v5.1.0`, then create the
 `v5.1.0-custom.2` release from the exact merge commit.
