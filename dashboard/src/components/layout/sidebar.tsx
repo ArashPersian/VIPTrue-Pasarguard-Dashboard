@@ -252,11 +252,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           ]
         : []),
       ...(canReadApiKeys
-        ? [{
-            title: 'apiKeys.title',
-            url: '/api-keys',
-            icon: Key,
-          }]
+        ? [
+            {
+              title: 'apiKeys.title',
+              url: '/api-keys',
+              icon: Key,
+            },
+          ]
         : []),
       ...(nodeNavItems.length > 0
         ? [
@@ -463,13 +465,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </div>
               ) : state !== 'collapsed' && !isMobile ? (
                 <div className={cn('relative', isRTL ? 'pl-10' : 'pr-10')}>
-                  <SidebarMenuButton size="lg" className={cn('w-full !gap-2')}>
+                  <SidebarMenuButton size="lg" className={cn('h-auto min-h-12 w-full !gap-2 py-2')}>
                     <Link to="/" className="flex min-w-0 flex-1 items-center gap-2">
                       <BrandLogo compact />
-                      <div className="flex min-w-0 flex-1 flex-col items-start overflow-hidden">
-                        <span className={cn(isRTL ? 'text-right' : 'text-left', 'truncate text-sm leading-tight font-semibold')}>{getDashboardTitle(ownerAdmin)}</span>
+                      <div className="flex min-w-0 flex-1 flex-col items-start">
+                        <span
+                          className={cn(isRTL ? 'text-right' : 'text-left', 'max-w-full text-[13px] leading-[1.15] font-semibold [text-wrap:balance] whitespace-normal')}
+                          title={getDashboardTitle(ownerAdmin)}
+                        >
+                          {getDashboardTitle(ownerAdmin)}
+                        </span>
                         {ownerAdmin && (
-                          <div className="flex min-w-0 flex-wrap items-center gap-0.75 leading-none">
+                          <div className="flex min-w-0 flex-nowrap items-center gap-0.75 leading-none">
                             <span className="max-w-full truncate text-xs leading-none opacity-45">{displayVersion}</span>
                             <div className="max-w-full">
                               <TooltipProvider>
@@ -508,13 +515,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </TooltipProvider>
                 </div>
               ) : (
-                <SidebarMenuButton size="lg" asChild className="!gap-2">
+                <SidebarMenuButton size="lg" asChild className="h-auto min-h-12 !gap-2 py-2">
                   <Link to="/">
                     <BrandLogo compact />
-                    <div className="flex min-w-0 flex-col overflow-hidden">
-                      <span className={cn(isRTL ? 'text-right' : 'text-left', 'truncate text-sm leading-tight font-semibold')}>{getDashboardTitle(ownerAdmin)}</span>
+                    <div className="flex min-w-0 flex-col">
+                      <span
+                        className={cn(isRTL ? 'text-right' : 'text-left', 'max-w-full text-[13px] leading-[1.15] font-semibold [text-wrap:balance] whitespace-normal')}
+                        title={getDashboardTitle(ownerAdmin)}
+                      >
+                        {getDashboardTitle(ownerAdmin)}
+                      </span>
                       {ownerAdmin && (
-                        <div className="flex min-w-0 flex-wrap items-center gap-0.75 leading-none">
+                        <div className="flex min-w-0 flex-nowrap items-center gap-0.75 leading-none">
                           <span className="max-w-full truncate text-xs leading-none opacity-45">{displayVersion}</span>
                           <div className="max-w-full">
                             <TooltipProvider>

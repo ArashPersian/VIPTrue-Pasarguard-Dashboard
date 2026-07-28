@@ -79,6 +79,9 @@ tar -xzf "$TEMP_DIR/$ARCHIVE_NAME" -C "$PENDING_DIR"
   exit 1
 }
 
+# mktemp creates the release root with mode 0700. Nginx needs to traverse it.
+chmod 0755 "$PENDING_DIR"
+
 mv "$PENDING_DIR" "$TARGET_DIR"
 PENDING_DIR=""
 
