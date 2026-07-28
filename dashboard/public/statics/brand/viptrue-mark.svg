@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">VIPTrue</title>
+  <defs>
+    <linearGradient id="bg" x1="16" y1="8" x2="112" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#28101d"/>
+      <stop offset="1" stop-color="#100b0f"/>
+    </linearGradient>
+    <linearGradient id="neon" x1="24" y1="30" x2="104" y2="104" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ff6aa2"/>
+      <stop offset=".55" stop-color="#ff246c"/>
+      <stop offset="1" stop-color="#d8004c"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect x="4" y="4" width="120" height="120" rx="30" fill="url(#bg)" stroke="#ff3d8d" stroke-opacity=".55" stroke-width="3"/>
+  <path d="M18 38c14 5 24 14 31 25L64 92 79 63c7-11 17-20 31-25-4 20-13 38-27 54l-19 22-19-22C31 76 22 58 18 38Z" fill="url(#neon)" filter="url(#glow)"/>
+  <path d="m42 35 22 45 22-45" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"/>
+</svg>

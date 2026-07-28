@@ -1,7 +1,8 @@
 import { Footer } from '@/components/layout/footer'
 import { Language } from '@/components/common/language'
-import { useTheme } from '@/app/providers/theme-provider'
 import { ThemeToggle } from '@/components/common/theme-toggle'
+import { VIPTRUE_BRAND } from '@/brand/config'
+import { BrandLogo } from '@/components/brand/brand-logo'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -116,7 +117,6 @@ export const Login: FC = () => {
   const { t } = useTranslation()
   const dir = useDirDetection()
   const location = useLocation()
-  const { resolvedTheme } = useTheme()
   const {
     register,
     formState: { errors },
@@ -341,7 +341,7 @@ export const Login: FC = () => {
   }, [])
 
   return (
-    <div className="flex min-h-screen w-full flex-col justify-between p-6">
+    <div className="viptrue-login-shell flex min-h-screen w-full flex-col justify-between p-6">
       <div className="w-full">
         <div className="flex w-full items-center justify-between">
           <Language />
@@ -350,8 +350,9 @@ export const Login: FC = () => {
         <div className="flex w-full items-center justify-center">
           <div className="mt-6 w-full max-w-[340px]">
             <div className="flex flex-col items-center gap-2">
-              <img src={resolvedTheme === 'dark' ? '/statics/favicon/logo.png' : '/statics/favicon/logo-dark.png'} alt="PasarGuard Logo" className="h-20 w-20 object-contain" />
-              <span className="text-2xl font-semibold">{view === 'login' ? t('login.loginYourAccount') : t('setup.ownerAccess', { defaultValue: 'Owner access' })}</span>
+              <BrandLogo />
+              <span className="mt-2 bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 bg-clip-text text-2xl font-black tracking-tight text-transparent">{VIPTRUE_BRAND.loginTitle}</span>
+              <span className="text-xl font-semibold">{view === 'login' ? t('login.loginYourAccount') : t('setup.ownerAccess', { defaultValue: 'Owner access' })}</span>
               <span className="text-center text-gray-600 dark:text-gray-400">
                 {view === 'login'
                   ? t('login.welcomeBack')

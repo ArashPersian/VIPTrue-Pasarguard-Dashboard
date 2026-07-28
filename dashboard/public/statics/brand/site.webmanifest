@@ -1,0 +1,15 @@
+{
+  "name": "VIPTrue Control Center",
+  "short_name": "VIPTrue",
+  "icons": [
+    {
+      "src": "/statics/brand/viptrue-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "theme_color": "#170e14",
+  "background_color": "#130d11",
+  "display": "standalone"
+}

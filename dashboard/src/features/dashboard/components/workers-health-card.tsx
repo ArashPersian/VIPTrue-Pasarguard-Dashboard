@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { DOCUMENTATION } from '@/constants/Project'
+import { SUPPORT_URL } from '@/constants/Project'
 import { cn } from '@/lib/utils'
 import useDirDetection from '@/hooks/use-dir-detection'
 import { useGetWorkersHealth } from '@/service/api'
@@ -42,7 +42,7 @@ const dotClassMap: Record<WorkerStatusVariant, string> = {
 }
 
 const WorkersHealthCard = () => {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const dir = useDirDetection()
   const [pauseRefetch, setPauseRefetch] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(true)
@@ -60,11 +60,7 @@ const WorkersHealthCard = () => {
   const schedulerMeta = statusLabelMap[schedulerStatus] ?? { label: scheduler?.status || 'Unknown', variant: 'blank' }
   const nodeMeta = statusLabelMap[nodeStatus] ?? { label: node?.status || 'Unknown', variant: 'blank' }
   const natsDisabled = [scheduler?.error, node?.error].some(error => error?.toLowerCase().includes('nats is disabled'))
-  const workerHealthDocsUrl = useMemo(() => {
-    const locale = i18n.resolvedLanguage || i18n.language || 'en'
-    const normalizedLocale = locale.split('-')[0]
-    return `${DOCUMENTATION}/${normalizedLocale}/learn/multi-worker/`
-  }, [i18n.language, i18n.resolvedLanguage])
+  const workerHealthDocsUrl = SUPPORT_URL
   const summaryStatus = useMemo(() => {
     if (!scheduler && !node) return { label: t('workersHealth.status.unknown', { defaultValue: 'Unknown' }), variant: 'blank' as WorkerStatusVariant }
     if (schedulerStatus === 'unavailable' || nodeStatus === 'unavailable')

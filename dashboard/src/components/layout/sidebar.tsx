@@ -1,9 +1,8 @@
 import { Language } from '@/components/common/language'
 import Snowfall from '@/components/common/snowfall'
-import { useTheme } from '@/app/providers/theme-provider'
 import { ThemeToggle } from '@/components/common/theme-toggle'
-import { GithubStar } from '@/components/layout/github-star'
-import { GoalProgress } from '@/components/layout/goal-progress'
+import { getDashboardTitle, VIPTRUE_BRAND } from '@/brand/config'
+import { BrandLogo } from '@/components/brand/brand-logo'
 import { NavMain } from '@/components/layout/nav-main'
 import { NavSecondary } from '@/components/layout/nav-secondary'
 import { NavUser } from '@/components/layout/nav-user'
@@ -12,7 +11,7 @@ import { VersionBadge } from '@/components/layout/version-badge'
 import { Button } from '@/components/ui/button'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarRail, useSidebar } from '@/components/ui/sidebar'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { DISCUSSION_GROUP, DOCUMENTATION, DONATION_URL, REPO_URL } from '@/constants/Project'
+import { SUPPORT_URL } from '@/constants/Project'
 import { useAdmin } from '@/hooks/use-admin'
 import useDirDetection from '@/hooks/use-dir-detection'
 import { useSystemVersion } from '@/hooks/use-system-version'
@@ -22,7 +21,6 @@ import { canReadResourcePage, hasPermission, hasScopeAll, isOwner } from '@/util
 import {
   ArrowUpDown,
   Bell,
-  BookOpen,
   Calendar,
   ChevronsLeft,
   ChevronsRight,
@@ -31,7 +29,6 @@ import {
   FileCode2,
   FileUser,
   Fingerprint,
-  GithubIcon,
   Group,
   Key,
   Layers,
@@ -44,7 +41,6 @@ import {
   Network,
   Palette,
   PieChart,
-  RssIcon,
   Send,
   Settings,
   Settings2,
@@ -64,6 +60,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const isRTL = useDirDetection() === 'rtl'
   const { t } = useTranslation()
   const { admin } = useAdmin()
+  const ownerAdmin = isOwner(admin)
   const canReadSystem = hasPermission(admin, 'system', 'read')
   const canReadHosts = canReadResourcePage(admin, 'hosts')
   const canReadGroups = canReadResourcePage(admin, 'groups')
@@ -126,13 +123,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ]
       : []),
   ]
-  const { currentVersion: systemVersion } = useSystemVersion({ enabled: canReadSystem })
+  const { currentVersion: systemVersion } = useSystemVersion({ enabled: ownerAdmin })
   const { setOpenMobile, openMobile, state, isMobile, toggleSidebar } = useSidebar()
-  const { resolvedTheme } = useTheme()
   const [showCollapseButton, setShowCollapseButton] = useState(false)
-  const normalizedVersion = canReadSystem && systemVersion ? systemVersion.replace(/[^0-9.]/g, '') : null
-  const displayVersion = canReadSystem && systemVersion ? `(v${systemVersion})` : ''
-  const { hasUpdate } = useVersionCheck(normalizedVersion, { enabled: canReadSystem })
+  const normalizedVersion = ownerAdmin && systemVersion ? systemVersion.replace(/[^0-9.]/g, '') : null
+  const displayVersion = ownerAdmin && systemVersion ? `(v${systemVersion})` : ''
+  const { hasUpdate } = useVersionCheck(normalizedVersion, { enabled: ownerAdmin })
   const touchStartX = useRef<number | null>(null)
   const touchEndX = useRef<number | null>(null)
   const minSwipeDistance = 50
@@ -182,6 +178,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       document.removeEventListener('touchend', handleTouchEnd)
     }
   }, [handleTouchEnd])
+
+  useEffect(() => {
+    document.title = getDashboardTitle(ownerAdmin)
+  }, [ownerAdmin])
 
   const data = {
     user: {
@@ -242,7 +242,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             },
           ]
         : []),
-      ...(isOwner(admin)
+      ...(ownerAdmin
         ? [
             {
               title: 'adminRoles.title',
@@ -386,28 +386,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     navSecondary: [
       {
         title: t('supportUs'),
-        url: DONATION_URL,
+        url: SUPPORT_URL,
         icon: LifeBuoy,
-        target: '_blank',
-      },
-    ],
-    community: [
-      {
-        title: 'documentation',
-        url: DOCUMENTATION,
-        icon: BookOpen,
-        target: '_blank',
-      },
-      {
-        title: 'discussionGroup',
-        url: DISCUSSION_GROUP,
-        icon: RssIcon,
-        target: '_blank',
-      },
-      {
-        title: 'github',
-        url: REPO_URL,
-        icon: GithubIcon,
         target: '_blank',
       },
     ],
@@ -419,16 +399,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <div className="bg-sidebar h-[env(safe-area-inset-top)]" />
         <div className="border-sidebar-border bg-sidebar/80 supports-[backdrop-filter]:bg-sidebar/65 flex items-center justify-between border-b px-4 py-3 backdrop-blur-md">
           <Link to="/" className="flex items-center gap-2">
-            <img
-              src={resolvedTheme === 'dark' ? window.location.pathname + 'statics/favicon/logo.png' : window.location.pathname + 'statics/favicon/logo-dark.png'}
-              alt="PasarGuard Logo"
-              className="h-8 w-8 object-contain"
-            />
+            <BrandLogo compact />
             <span dir={isRTL ? 'rtl' : 'ltr'} className="text-sm font-bold">
-              {t('pasarguard')}
+              {VIPTRUE_BRAND.name}
             </span>
           </Link>
-          <SidebarTriggerWithBadge showUpdateBadge={canReadSystem && hasUpdate} />
+          <SidebarTriggerWithBadge showUpdateBadge={ownerAdmin && hasUpdate} />
         </div>
       </div>
       <Sidebar variant="sidebar" collapsible="icon" {...props} className="border-sidebar-border p-0" side={isRTL ? 'right' : 'left'}>
@@ -440,10 +416,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {state === 'collapsed' && !isMobile ? (
                 <div className="group relative" onMouseEnter={() => setShowCollapseButton(true)} onMouseLeave={() => setShowCollapseButton(false)}>
                   {/* Badge - always visible, positioned on top layer */}
-                  {canReadSystem && (
+                  {ownerAdmin && (
                     <div className="pointer-events-none absolute inset-0 z-30">
                       <div className="relative h-full w-full">
-                        <VersionBadge currentVersion={normalizedVersion} />
+                        <VersionBadge currentVersion={normalizedVersion} enabled={ownerAdmin} />
                       </div>
                     </div>
                   )}
@@ -453,18 +429,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     asChild
                     className={cn('relative w-full justify-center !gap-0 transition-opacity duration-200 ease-in-out', showCollapseButton ? 'pointer-events-none opacity-0' : 'opacity-100')}
                   >
-                    <a href={REPO_URL} target="_blank">
-                      <img
-                        src={resolvedTheme === 'dark' ? window.location.pathname + 'statics/favicon/logo.png' : window.location.pathname + 'statics/favicon/logo-dark.png'}
-                        alt="PasarGuard Logo"
-                        className="h-6 w-6 flex-shrink-0 object-contain"
-                      />
-                      {canReadSystem && hasUpdate && (
+                    <Link to="/">
+                      <BrandLogo compact className="h-7 w-7" />
+                      {ownerAdmin && hasUpdate && (
                         <TooltipProvider>
-                          <VersionBadge currentVersion={normalizedVersion} />
+                          <VersionBadge currentVersion={normalizedVersion} enabled={ownerAdmin} />
                         </TooltipProvider>
                       )}
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                   {/* Expand button - fades in on hover */}
                   <TooltipProvider>
@@ -480,7 +452,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         >
                           <ChevronsRight className={cn('h-5 w-5 flex-shrink-0', isRTL && 'scale-x-[-1]')} />
                           <span className="sr-only">Expand Sidebar</span>
-                          {canReadSystem && hasUpdate && <VersionBadge currentVersion={normalizedVersion} />}
+                          {ownerAdmin && hasUpdate && <VersionBadge currentVersion={normalizedVersion} enabled={ownerAdmin} />}
                         </SidebarMenuButton>
                       </TooltipTrigger>
                       <TooltipContent side={isRTL ? 'left' : 'right'}>
@@ -492,26 +464,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               ) : state !== 'collapsed' && !isMobile ? (
                 <div className={cn('relative', isRTL ? 'pl-10' : 'pr-10')}>
                   <SidebarMenuButton size="lg" className={cn('w-full !gap-2')}>
-                    <a href={REPO_URL} target="_blank" className="flex min-w-0 flex-1 items-center gap-2">
-                      <img
-                        src={resolvedTheme === 'dark' ? window.location.pathname + 'statics/favicon/logo.png' : window.location.pathname + 'statics/favicon/logo-dark.png'}
-                        alt="PasarGuard Logo"
-                        className="h-8 w-8 flex-shrink-0 object-contain"
-                      />
+                    <Link to="/" className="flex min-w-0 flex-1 items-center gap-2">
+                      <BrandLogo compact />
                       <div className="flex min-w-0 flex-1 flex-col items-start overflow-hidden">
-                        <span className={cn(isRTL ? 'text-right' : 'text-left', 'truncate text-sm leading-tight font-semibold')}>{t('pasarguard')}</span>
-                        {canReadSystem && (
+                        <span className={cn(isRTL ? 'text-right' : 'text-left', 'truncate text-sm leading-tight font-semibold')}>{getDashboardTitle(ownerAdmin)}</span>
+                        {ownerAdmin && (
                           <div className="flex min-w-0 flex-wrap items-center gap-0.75 leading-none">
                             <span className="max-w-full truncate text-xs leading-none opacity-45">{displayVersion}</span>
                             <div className="max-w-full">
                               <TooltipProvider>
-                                <VersionBadge currentVersion={normalizedVersion} className="leading-none" />
+                                <VersionBadge currentVersion={normalizedVersion} enabled={ownerAdmin} className="leading-none" />
                               </TooltipProvider>
                             </div>
                           </div>
                         )}
                       </div>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                   <TooltipProvider>
                     <Tooltip>
@@ -541,26 +509,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </div>
               ) : (
                 <SidebarMenuButton size="lg" asChild className="!gap-2">
-                  <a href={REPO_URL} target="_blank">
-                    <img
-                      src={resolvedTheme === 'dark' ? window.location.pathname + 'statics/favicon/logo.png' : window.location.pathname + 'statics/favicon/logo-dark.png'}
-                      alt="PasarGuard Logo"
-                      className="h-8 w-8 flex-shrink-0 object-contain"
-                    />
+                  <Link to="/">
+                    <BrandLogo compact />
                     <div className="flex min-w-0 flex-col overflow-hidden">
-                      <span className={cn(isRTL ? 'text-right' : 'text-left', 'truncate text-sm leading-tight font-semibold')}>{t('pasarguard')}</span>
-                      {canReadSystem && (
+                      <span className={cn(isRTL ? 'text-right' : 'text-left', 'truncate text-sm leading-tight font-semibold')}>{getDashboardTitle(ownerAdmin)}</span>
+                      {ownerAdmin && (
                         <div className="flex min-w-0 flex-wrap items-center gap-0.75 leading-none">
                           <span className="max-w-full truncate text-xs leading-none opacity-45">{displayVersion}</span>
                           <div className="max-w-full">
                             <TooltipProvider>
-                              <VersionBadge currentVersion={normalizedVersion} className="leading-none" />
+                              <VersionBadge currentVersion={normalizedVersion} enabled={ownerAdmin} className="leading-none" />
                             </TooltipProvider>
                           </div>
                         </div>
                       )}
                     </div>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               )}
             </SidebarMenuItem>
@@ -568,11 +532,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarHeader>
         <SidebarContent>
           <NavMain items={data.navMain} />
-          {isOwner(admin) && <NavSecondary items={data.community} label={t('community')} />}
           <NavSecondary items={data.navSecondary} className="mt-auto" />
-          <GoalProgress />
-          <div className="flex items-center justify-between px-2 [&>:first-child]:[direction:ltr]">
-            {state !== 'collapsed' && <GithubStar />}
+          <div className="flex items-center justify-end px-2">
             {state !== 'collapsed' && (
               <div className="flex items-start gap-2">
                 <Language />
@@ -580,14 +541,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </div>
             )}
             {state === 'collapsed' && isMobile && (
-              <>
-                <GithubStar />
-
-                <div className="flex items-start gap-2">
-                  <Language />
-                  <ThemeToggle />
-                </div>
-              </>
+              <div className="flex items-start gap-2">
+                <Language />
+                <ThemeToggle />
+              </div>
             )}
           </div>
         </SidebarContent>
