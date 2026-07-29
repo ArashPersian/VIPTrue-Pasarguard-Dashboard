@@ -47,6 +47,8 @@ const themeSettings = await read('dashboard/src/pages/_dashboard.settings.theme.
 requireText('VIPTrue default theme swatch', themeSettings, "{ name: 'default', label: 'theme.default', dot: '#ff3d8d' }")
 requireText('theme-aware live preview', themeSettings, 'data-testid="viptrue-theme-preview"')
 requireText('live preview logo', themeSettings, '<BrandLogo compact')
+requireText('core editor preference permission source', themeSettings, "canReadResourcePage(admin, 'cores')")
+requireText('core editor preference permission gate', themeSettings, '{canConfigureCoreEditor && (')
 
 const brandStyles = await read('dashboard/src/brand.css')
 forbidText('theme-switchable brand variables', brandStyles, '--primary: 342 100% 57% !important')

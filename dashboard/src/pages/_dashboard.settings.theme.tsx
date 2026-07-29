@@ -8,8 +8,10 @@ import { cn } from '@/lib/utils'
 import { CheckCircle2, SunMoon, Palette, Ruler, Eye, RotateCcw, Sun, Moon, Monitor, CalendarClock, Languages, BarChart3, TrendingUp, FileJson2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { BrandLogo } from '@/components/brand/brand-logo'
+import { useAdmin } from '@/hooks/use-admin'
 import useDirDetection from '@/hooks/use-dir-detection'
 import { Switch } from '@/components/ui/switch'
+import { canReadResourcePage } from '@/utils/rbac'
 import {
   getCoresListUseConfigModal,
   getDatePickerPreference,
@@ -57,12 +59,14 @@ const chartViewIcons: Record<(typeof chartViewOptions)[number], ReactNode> = {
 
 export default function ThemeSettings() {
   const { t, i18n } = useTranslation()
+  const { admin } = useAdmin()
   const { theme, colorTheme, radius, resolvedTheme, setTheme, setColorTheme, setRadius, resetToDefaults, isSystemTheme } = useTheme()
   const dir = useDirDetection()
   const [isResetting, setIsResetting] = useState(false)
   const [datePickerPreference, setDatePickerPreferenceState] = useState<DatePickerPreference>('locale')
   const [chartViewType, setChartViewTypeState] = useState<ChartViewType>('bar')
   const [coresListUseConfigModal, setCoresListUseConfigModalState] = useState(false)
+  const canConfigureCoreEditor = canReadResourcePage(admin, 'cores')
   const isDatePickerFollowingLocale = datePickerPreference === 'locale'
   const defaultManualDatePreference: Exclude<DatePickerPreference, 'locale'> = isPersianLocaleLanguage(i18n.resolvedLanguage ?? i18n.language) ? 'persian' : 'gregorian'
   const datePickerModeCopy: Record<DatePickerPreference, string> = {
@@ -383,24 +387,26 @@ export default function ThemeSettings() {
         </RadioGroup>
       </section>
 
-      <section className="space-y-3">
-        <div className="border-border/70 bg-background/60 flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <FileJson2 className="text-primary h-4 w-4" />
-              <p className="text-base font-semibold sm:text-lg">{t('theme.coresListEditor')}</p>
+      {canConfigureCoreEditor && (
+        <section className="space-y-3">
+          <div className="border-border/70 bg-background/60 flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <FileJson2 className="text-primary h-4 w-4" />
+                <p className="text-base font-semibold sm:text-lg">{t('theme.coresListEditor')}</p>
+              </div>
+              <p className="text-muted-foreground text-xs leading-relaxed sm:text-sm">{t('theme.coresListEditorDescription')}</p>
             </div>
-            <p className="text-muted-foreground text-xs leading-relaxed sm:text-sm">{t('theme.coresListEditorDescription')}</p>
-          </div>
-          <div className="border-border/70 bg-muted/40 flex items-center justify-between gap-3 rounded-lg border px-3 py-2">
-            <div className="space-y-0.5">
-              <p className="text-foreground text-xs font-medium">{t('theme.coresListEditorModal')}</p>
-              <p className="text-muted-foreground text-[11px] leading-relaxed">{t('theme.coresListEditorModalHint')}</p>
+            <div className="border-border/70 bg-muted/40 flex items-center justify-between gap-3 rounded-lg border px-3 py-2">
+              <div className="space-y-0.5">
+                <p className="text-foreground text-xs font-medium">{t('theme.coresListEditorModal')}</p>
+                <p className="text-muted-foreground text-[11px] leading-relaxed">{t('theme.coresListEditorModalHint')}</p>
+              </div>
+              <Switch checked={coresListUseConfigModal} onCheckedChange={handleCoresListUseConfigModalChange} aria-label={t('theme.coresListEditorModal')} />
             </div>
-            <Switch checked={coresListUseConfigModal} onCheckedChange={handleCoresListUseConfigModalChange} aria-label={t('theme.coresListEditorModal')} />
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="space-y-3">
         <div className="space-y-1">
