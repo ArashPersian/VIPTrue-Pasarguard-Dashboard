@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { CheckCircle2, SunMoon, Palette, Ruler, Eye, RotateCcw, Sun, Moon, Monitor, CalendarClock, Languages, BarChart3, TrendingUp, FileJson2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { BrandLogo } from '@/components/brand/brand-logo'
 import useDirDetection from '@/hooks/use-dir-detection'
 import { Switch } from '@/components/ui/switch'
 import {
@@ -409,7 +410,12 @@ export default function ThemeSettings() {
           </div>
           <p className="text-muted-foreground text-xs leading-relaxed sm:text-sm">{t('theme.previewDescription')}</p>
         </div>
-        <div className="border-border/70 bg-muted/30 space-y-3 rounded-lg border p-3 sm:space-y-4 sm:p-4" style={{ borderRadius: radius }}>
+        <div
+          className="viptrue-theme-preview border-border/70 space-y-3 overflow-hidden rounded-lg border p-3 sm:space-y-4 sm:p-4"
+          style={{ borderRadius: radius }}
+          data-testid="viptrue-theme-preview"
+          aria-live="polite"
+        >
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-medium sm:text-sm">{t('theme.dashboardPreview')}</p>
@@ -423,18 +429,45 @@ export default function ThemeSettings() {
               <span className="bg-accent h-2.5 w-2.5 rounded-full" />
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="space-y-2">
-              <div className="bg-primary/80 h-3 rounded" style={{ borderRadius: radius }} />
-              <div className="bg-muted h-3 rounded" style={{ borderRadius: radius }} />
-              <div className="bg-accent h-3 rounded" style={{ borderRadius: radius }} />
+          <div className="grid min-h-44 gap-3 sm:grid-cols-[5.25rem_minmax(0,1fr)]">
+            <div className="viptrue-theme-preview__sidebar hidden flex-col gap-3 rounded-md p-2.5 sm:flex" style={{ borderRadius: radius }}>
+              <BrandLogo compact className="h-8 w-full" />
+              <span className="bg-sidebar-primary/90 h-2.5 w-full rounded-full" />
+              <span className="bg-sidebar-accent h-2.5 w-4/5 rounded-full" />
+              <span className="bg-sidebar-accent h-2.5 w-3/5 rounded-full" />
+              <span className="bg-sidebar-border mt-auto h-2.5 w-full rounded-full" />
             </div>
-            <div className="space-y-2">
-              <div className="bg-background text-muted-foreground flex h-9 items-center rounded border px-3 text-xs" style={{ borderRadius: radius }}>
-                {t('theme.sampleInput')}
+            <div className="grid gap-3">
+              <div className="grid grid-cols-3 gap-2">
+                {(['--chart-1', '--chart-2', '--chart-4'] as const).map((chartColor, index) => (
+                  <div key={chartColor} className="viptrue-theme-preview__card space-y-2 rounded-md p-2.5" style={{ borderRadius: radius }}>
+                    <span className="block h-2.5 w-2.5 rounded-full" style={{ background: `hsl(var(${chartColor}))` }} />
+                    <span className="bg-muted block h-2 w-full rounded-full" />
+                    <span className="bg-muted block h-2 rounded-full" style={{ width: `${74 - index * 12}%` }} />
+                  </div>
+                ))}
               </div>
-              <div className="bg-primary text-primary-foreground flex h-9 items-center justify-center rounded text-xs font-medium" style={{ borderRadius: radius }}>
-                {t('theme.primaryButton')}
+              <div className="viptrue-theme-preview__card grid gap-3 rounded-md p-3 sm:grid-cols-[minmax(0,1fr)_minmax(8rem,0.78fr)]" style={{ borderRadius: radius }}>
+                <div className="viptrue-theme-preview__chart flex h-20 items-end gap-2 rounded-md px-3 pt-4 pb-2" style={{ borderRadius: radius }}>
+                  {[48, 74, 58, 90, 68].map((height, index) => (
+                    <span
+                      key={height}
+                      className="min-w-0 flex-1 rounded-t-sm"
+                      style={{
+                        height: `${height}%`,
+                        background: `hsl(var(--chart-${(index % 5) + 1}))`,
+                      }}
+                    />
+                  ))}
+                </div>
+                <div className="space-y-2">
+                  <div className="bg-input text-muted-foreground flex h-9 items-center rounded border px-3 text-xs" style={{ borderRadius: radius }}>
+                    {t('theme.sampleInput')}
+                  </div>
+                  <div className="bg-primary text-primary-foreground flex h-9 items-center justify-center rounded text-xs font-medium" style={{ borderRadius: radius }}>
+                    {t('theme.primaryButton')}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

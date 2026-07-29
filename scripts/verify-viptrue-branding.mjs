@@ -37,13 +37,33 @@ const themeProvider = await read('dashboard/src/app/providers/theme-provider.tsx
 requireText('theme runtime marker', themeProvider, 'root.dataset.colorTheme = colorThemeName')
 requireText('theme sidebar primary', themeProvider, "'--sidebar-primary': themeVars['--sidebar-primary'] ?? themeVars['--primary']")
 requireText('VIPTrue default theme', themeProvider, "'--primary': '342 100% 57%'")
+requireText('theme surface merge', themeProvider, 'viptrueThemeSurfaces[colorThemeName]')
+requireText('theme neon token', themeProvider, "'--viptrue-neon'")
+for (const theme of ['red', 'rose', 'orange', 'green', 'blue', 'yellow', 'violet']) {
+  requireText(`${theme} themed surface`, themeProvider, `${theme}: createTintedViptrueSurface(`)
+}
 
 const themeSettings = await read('dashboard/src/pages/_dashboard.settings.theme.tsx')
 requireText('VIPTrue default theme swatch', themeSettings, "{ name: 'default', label: 'theme.default', dot: '#ff3d8d' }")
+requireText('theme-aware live preview', themeSettings, 'data-testid="viptrue-theme-preview"')
+requireText('live preview logo', themeSettings, '<BrandLogo compact')
 
 const brandStyles = await read('dashboard/src/brand.css')
 forbidText('theme-switchable brand variables', brandStyles, '--primary: 342 100% 57% !important')
-requireText('adaptive themed background', brandStyles, 'hsl(var(--primary) / 0.16)')
+requireText('adaptive primary background', brandStyles, 'hsl(var(--primary) / 0.2)')
+requireText('adaptive neon background', brandStyles, 'hsl(var(--viptrue-neon) / 0.13)')
+requireText('scrolling background performance', brandStyles, 'background-attachment: scroll')
+forbidText('fixed background performance', brandStyles, 'background-attachment: fixed')
+forbidText('card blur performance', brandStyles, 'backdrop-filter:')
+requireText('theme preview surface', brandStyles, '.viptrue-theme-preview')
+
+const brandConfig = await read('dashboard/src/brand/config.ts')
+requireText('official sidebar logo', brandConfig, "markUrl: '/statics/brand/viptrue-logo.png?v=3'")
+forbidText('obsolete shield logo', brandConfig, 'viptrue-mark.svg')
+
+const dashboardIndex = await read('dashboard/index.html')
+requireText('official favicon', dashboardIndex, 'href="/statics/brand/viptrue-logo.png?v=3"')
+forbidText('obsolete favicon', dashboardIndex, 'viptrue-mark.svg')
 
 const banner = await read('dashboard/src/components/layout/version-update-banner.tsx')
 requireText('owner update banner', banner, 'const isOwnerAdmin = isOwner(admin)')
@@ -87,11 +107,7 @@ for (const fileName of await readdir(localeDir)) {
   forbidText(relativePath, source, 'پاسارگارد')
 }
 
-for (const relativePath of [
-  'dashboard/public/statics/brand/viptrue-logo.png',
-  'dashboard/public/statics/brand/viptrue-mark.svg',
-  'dashboard/public/statics/brand/site.webmanifest',
-]) {
+for (const relativePath of ['dashboard/public/statics/brand/viptrue-logo.png', 'dashboard/public/statics/brand/site.webmanifest']) {
   const fileStat = await stat(resolve(repoRoot, relativePath))
   if (!fileStat.isFile() || fileStat.size === 0) failures.push(`${relativePath}: missing or empty`)
 }
@@ -99,6 +115,9 @@ for (const relativePath of [
 const manifest = JSON.parse(await read('dashboard/public/statics/brand/site.webmanifest'))
 if (manifest.name !== 'VIPTrue Control Center' || manifest.short_name !== 'VIPTrue') {
   failures.push('VIPTrue web manifest has unexpected product names')
+}
+if (manifest.icons?.[0]?.src !== '/statics/brand/viptrue-logo.png?v=3' || manifest.icons?.[0]?.type !== 'image/png') {
+  failures.push('VIPTrue web manifest does not use the official PNG logo')
 }
 
 if (failures.length > 0) {
