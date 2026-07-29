@@ -8,7 +8,8 @@
 - Base commit: `17d698b7c91c7719c680fe9d9cc75bf19716dacf`
 - Planned patch release: `v5.1.0-custom.3`
 - Draft PR: `#3`
-- Implementation commit: `8937415fa2ff017a501e02258d067f6992b7adbc`
+- Theme implementation commit: `8937415fa2ff017a501e02258d067f6992b7adbc`
+- Reseller hardening commit: `7cd02ae004ae83839dd480ce0fbd91b59ddb64b5`
 
 ## Current production state
 
@@ -18,6 +19,16 @@
 - Owner session was manually authenticated for the browser audit
 - All 27 major Owner routes loaded their expected page heading without an
   application alert or visible PasarGuard branding
+- Reseller session was manually authenticated for the browser audit
+- Reseller navigation exposes only Dashboard, Users, API Keys and Settings
+- Dashboard, Users, API Keys and Theme loaded with the `VIPTrue Reseller Panel`
+  title, VIPTrue support link and no application console errors
+- Direct navigation to all 25 Owner-only Statistics, Hosts, Groups, Nodes,
+  Cores, Logs, Templates, Admins, Admin Roles, administrative Settings and
+  Bulk routes was redirected to the Reseller Dashboard
+- No version/update notice or visible PasarGuard branding appeared for Reseller
+- Reseller `Blue + Dark` persisted after reload and was restored to
+  `Default + System` after the test
 - Existing non-default theme selection and persistence work, but production
   still has a neutral/flat page surface and an incomplete Live Preview
 
@@ -39,6 +50,10 @@
 - Added release-gating budgets for total build size, static file count,
   main JavaScript/CSS, Theme route, logo and dashboard entrypoint
 - Added the performance budget gate to both dashboard CI and tagged releases
+- Hid the Cores list editor preference unless the signed-in role can read Cores;
+  the production audit exposed this irrelevant Owner-only preference to
+  Reseller even though RouteGuard correctly blocked the Cores page
+- Added a static release gate for the Cores preference permission check
 
 ## Verification completed
 
@@ -47,20 +62,22 @@
 - Focused ESLint: zero errors; two pre-existing Fast Refresh warnings
 - Clean production Vite build: `5278` modules, `5.09s`
 - Release-equivalent build with `VITE_BASE_API=/`
-- Dashboard build: `21902132` bytes across `328` static files including
+- Dashboard build after Reseller hardening: `21902186` bytes across `328`
+  static files including
   the release `404.html`
-- Main JavaScript: `126550` bytes raw / `35628` bytes gzip
+- Main JavaScript: `126550` bytes raw / `35617` bytes gzip
 - Main CSS: `241619` bytes raw / `32570` bytes gzip
-- Theme route: `18757` bytes raw / `4360` bytes gzip
+- Theme route: `18811` bytes raw / `4392` bytes gzip
 - Official optimized logo: `353196` bytes
 - Performance budgets passed
-- Test archive: `6540692` bytes
-- Test archive SHA256: `4353fdc1514238f3003ec575f7315a609d8d8b1d8e2af0326b7db5e350bcbbe9`
+- Reseller-audit test archive SHA256:
+  `427da20ab707aca495b5283e501d2d4746a4ea908036aec0dc2ea52d9b477924`
 - Archive contains Dashboard/404 entrypoints and the official logo, and does
   not contain the obsolete shield asset
-- GitHub `VIPTrue Dashboard CI` run `#11` passed on the implementation commit
-- Draft PR `#3` is one commit ahead of `viptrue/v5.1.0`, zero commits behind,
-  conflict-free and mergeable
+- GitHub `VIPTrue Dashboard CI` run `#14` passed on Reseller hardening commit
+  `7cd02ae`
+- Draft PR `#3` is four commits ahead of `viptrue/v5.1.0`, zero commits
+  behind, conflict-free and mergeable
 
 Known upstream baseline: Monaco/Ace editor worker chunks above Vite's generic
 `500 kB` warning remain unchanged from PasarGuard `v5.1.0`. The VIPTrue patch
@@ -68,13 +85,13 @@ does not add an editor dependency or eager-load those route-specific chunks.
 
 ## Remaining work
 
-- Manually authenticate the browser as a Reseller and audit all Reseller
-  routes plus owner-only update/version isolation
 - Review and merge the Draft PR
 - Publish and independently verify `v5.1.0-custom.3`
 - Install the patch release and smoke-test all eight palettes in production
 
 ## Next exact step
 
-Have the user log into the cloud browser with a Reseller account, then audit
-all Reseller routes and owner-only update/version isolation before PR merge.
+Mark PR `#3` ready, merge it into `viptrue/v5.1.0`, publish
+`v5.1.0-custom.3`, verify its archive and installer hashes independently, then
+install it on the server and smoke-test Owner and Reseller branding, themes and
+Live Preview.
