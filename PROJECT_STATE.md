@@ -7,7 +7,8 @@
 - Base release: `v5.1.0-custom.2`
 - Base commit: `17d698b7c91c7719c680fe9d9cc75bf19716dacf`
 - Planned patch release: `v5.1.0-custom.3`
-- Draft PR: pending branch publication
+- Draft PR: `#3`
+- Implementation commit: `8937415fa2ff017a501e02258d067f6992b7adbc`
 
 ## Current production state
 
@@ -57,6 +58,9 @@
 - Test archive SHA256: `4353fdc1514238f3003ec575f7315a609d8d8b1d8e2af0326b7db5e350bcbbe9`
 - Archive contains Dashboard/404 entrypoints and the official logo, and does
   not contain the obsolete shield asset
+- GitHub `VIPTrue Dashboard CI` run `#11` passed on the implementation commit
+- Draft PR `#3` is one commit ahead of `viptrue/v5.1.0`, zero commits behind,
+  conflict-free and mergeable
 
 Known upstream baseline: Monaco/Ace editor worker chunks above Vite's generic
 `500 kB` warning remain unchanged from PasarGuard `v5.1.0`. The VIPTrue patch
@@ -64,9 +68,6 @@ does not add an editor dependency or eager-load those route-specific chunks.
 
 ## Remaining work
 
-- Commit and publish the working branch, then open a Draft PR against
-  `viptrue/v5.1.0`
-- Confirm GitHub `VIPTrue Dashboard CI` passes with Bun on a clean runner
 - Manually authenticate the browser as a Reseller and audit all Reseller
   routes plus owner-only update/version isolation
 - Review and merge the Draft PR
@@ -75,5 +76,5 @@ does not add an editor dependency or eager-load those route-specific chunks.
 
 ## Next exact step
 
-Publish `agent/fix-brand-theme-compat`, open the Draft PR, then have the user
-log into the cloud browser with a Reseller account for the final role audit.
+Have the user log into the cloud browser with a Reseller account, then audit
+all Reseller routes and owner-only update/version isolation before PR merge.
