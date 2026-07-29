@@ -3,69 +3,95 @@
 - Project: VIPTrue PasarGuard Dashboard
 - Upstream compatibility: PasarGuard `v5.1.0`
 - Compatibility branch: `viptrue/v5.1.0`
-- Merged PR: `#2`
-- Merge and release target commit: `17d698b7c91c7719c680fe9d9cc75bf19716dacf`
-- Published release: `v5.1.0-custom.2`
-- Production release pending upgrade: `v5.1.0-custom.1`
-- Release archive SHA256: `1714e9f70afa74b6af07aa73a7d41c96c665457d923073ed2d66a92151d2e46b`
-- Versioned installer SHA256: `7080bebd7b3faa3e7659704e73d43eeb6796a388a3d776a4961bb6b18bc3719d`
+- Working branch: `agent/fix-brand-theme-compat`
+- Base release: `v5.1.0-custom.2`
+- Base commit: `17d698b7c91c7719c680fe9d9cc75bf19716dacf`
+- Planned patch release: `v5.1.0-custom.3`
+- Draft PR: `#3`
+- Theme implementation commit: `8937415fa2ff017a501e02258d067f6992b7adbc`
+- Reseller hardening commit: `7cd02ae004ae83839dd480ce0fbd91b59ddb64b5`
 
 ## Current production state
 
-- `v5.1.0-custom.1` remains active at `https://panel.vip504.com/dashboard/`
-- Dashboard and VIPTrue brand asset both return HTTP `200`
-- Nginx is active and the Backend/API/database remain unchanged
-- The installed `v5.1.0-custom.1` release directory permission was manually
-  corrected to `0755`
-- `v5.1.0-custom.2` is published and verified but not yet installed on the
-  production server
+- `v5.1.0-custom.2` is active at `https://panel.vip504.com/dashboard/`
+- Nginx is active and Dashboard plus brand endpoints return HTTP `200`
+- Backend/API/database/subscription behavior remain unchanged
+- Owner session was manually authenticated for the browser audit
+- All 27 major Owner routes loaded their expected page heading without an
+  application alert or visible PasarGuard branding
+- Reseller session was manually authenticated for the browser audit
+- Reseller navigation exposes only Dashboard, Users, API Keys and Settings
+- Dashboard, Users, API Keys and Theme loaded with the `VIPTrue Reseller Panel`
+  title, VIPTrue support link and no application console errors
+- Direct navigation to all 25 Owner-only Statistics, Hosts, Groups, Nodes,
+  Cores, Logs, Templates, Admins, Admin Roles, administrative Settings and
+  Bulk routes was redirected to the Reseller Dashboard
+- No version/update notice or visible PasarGuard branding appeared for Reseller
+- Reseller `Blue + Dark` persisted after reload and was restored to
+  `Default + System` after the test
+- Existing non-default theme selection and persistence work, but production
+  still has a neutral/flat page surface and an incomplete Live Preview
 
-## Included in v5.1.0-custom.2
+## Implemented for v5.1.0-custom.3
 
-- Installer changes the pending release root from `0700` to `0755` before
-  atomic activation so Nginx can traverse every fresh release
-- Full `VIPTrue Control Center` and `VIPTrue Reseller Panel` sidebar titles
-  display without ellipsis clipping
-- The current VIPTrue pink/rose palette remains the `Default` color theme
-- Red, Rose, Orange, Green, Blue, Yellow and Violet selections apply to primary
-  controls, sidebar tokens, charts, card shadows and page background
-- Selected color remains persisted in the existing `color-theme` browser
-  preference for each collaborator's browser
-- VIPTrue verification guards the default swatch, runtime theme marker, sidebar
-  theme tokens and unclipped title styling
+- Replaced the incorrect shield mark in the compact sidebar, favicon,
+  Apple touch icon and web manifest with the official winged VIPTrue logo
+- Reused the optimized `1024x585` official logo already shipped by the
+  dashboard (`353196` bytes) instead of the `1.28 MiB` source attachment
+- Removed the obsolete `viptrue-mark.svg` from the release payload
+- Added palette-specific surfaces for Default, Red, Rose, Orange, Green,
+  Blue, Yellow and Violet in both Light and Dark modes
+- Each palette now controls the page gradient, neon highlight, cards,
+  inputs, popovers, sidebar surfaces and existing primary/chart colors
+- Rebuilt Live Preview to show the real themed background, compact brand,
+  sidebar, cards, chart colors, input and primary action in real time
+- Removed fixed page backgrounds and card-wide backdrop blur to reduce
+  scroll/paint cost, especially on mobile and lower-power devices
+- Added release-gating budgets for total build size, static file count,
+  main JavaScript/CSS, Theme route, logo and dashboard entrypoint
+- Added the performance budget gate to both dashboard CI and tagged releases
+- Hid the Cores list editor preference unless the signed-in role can read Cores;
+  the production audit exposed this irrelevant Owner-only preference to
+  Reseller even though RouteGuard correctly blocked the Cores page
+- Added a static release gate for the Cores preference permission check
 
 ## Verification completed
 
 - `git diff --check`
-- Focused Prettier check
-- VIPTrue branding and owner-gate verification
-- Focused ESLint with zero errors
-- Production Vite build
-- Built bundle checks for `color-theme`, `dataset.colorTheme`, the default pink
-  token and the adaptive themed background
-- Release archive layout and SHA256 verification
-- GitHub `VIPTrue Dashboard CI` run `#8` passed on PR head `4a9a086`
-- PR `#2` merged successfully into `viptrue/v5.1.0`
-- One-shot release workflow run `30400568255` passed every step, including
-  target-SHA verification, build, package, checksum, tag/release creation and
-  release-branch cleanup
-- Release tag `v5.1.0-custom.2` points to verified commit `17d698b`
-- GitHub release asset digest confirms the dashboard archive SHA256 shown above
+- VIPTrue branding, owner-gate, theme-surface and obsolete-logo verification
+- Focused ESLint: zero errors; two pre-existing Fast Refresh warnings
+- Clean production Vite build: `5278` modules, `5.09s`
+- Release-equivalent build with `VITE_BASE_API=/`
+- Dashboard build after Reseller hardening: `21902186` bytes across `328`
+  static files including
+  the release `404.html`
+- Main JavaScript: `126550` bytes raw / `35617` bytes gzip
+- Main CSS: `241619` bytes raw / `32570` bytes gzip
+- Theme route: `18811` bytes raw / `4392` bytes gzip
+- Official optimized logo: `353196` bytes
+- Performance budgets passed
+- Reseller-audit test archive SHA256:
+  `427da20ab707aca495b5283e501d2d4746a4ea908036aec0dc2ea52d9b477924`
+- Archive contains Dashboard/404 entrypoints and the official logo, and does
+  not contain the obsolete shield asset
+- GitHub `VIPTrue Dashboard CI` run `#14` passed on Reseller hardening commit
+  `7cd02ae`
+- Draft PR `#3` is four commits ahead of `viptrue/v5.1.0`, zero commits
+  behind, conflict-free and mergeable
 
-Known upstream baseline: the full `v5.1.0` TypeScript check has existing
-generated API, core-kit and form typing failures. These are not caused by the
-VIPTrue compatibility patches and are not used as a release gate.
+Known upstream baseline: Monaco/Ace editor worker chunks above Vite's generic
+`500 kB` warning remain unchanged from PasarGuard `v5.1.0`. The VIPTrue patch
+does not add an editor dependency or eager-load those route-specific chunks.
 
 ## Remaining work
 
-- Install `v5.1.0-custom.2` with the versioned installer
-- Confirm the active `current` symlink and Nginx health
-- Confirm Dashboard and brand asset return HTTP `200`
-- Visually smoke-test Owner and Reseller titles plus at least two non-default
-  colors in Light and Dark mode
+- Review and merge the Draft PR
+- Publish and independently verify `v5.1.0-custom.3`
+- Install the patch release and smoke-test all eight palettes in production
 
 ## Next exact step
 
-Download and SHA256-verify the installer from tag `v5.1.0-custom.2`, run it with
-the verified release archive SHA256, then perform HTTP and visual smoke tests on
-the production dashboard.
+Mark PR `#3` ready, merge it into `viptrue/v5.1.0`, publish
+`v5.1.0-custom.3`, verify its archive and installer hashes independently, then
+install it on the server and smoke-test Owner and Reseller branding, themes and
+Live Preview.

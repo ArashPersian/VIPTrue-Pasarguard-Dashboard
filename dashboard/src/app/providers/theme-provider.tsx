@@ -27,7 +27,7 @@ type ThemeProviderState = {
 }
 
 // Color theme definitions with proper typing
-const colorThemes: Record<
+const baseColorThemes: Record<
   ColorTheme,
   {
     name: string
@@ -495,6 +495,99 @@ const colorThemes: Record<
   },
 }
 
+type ThemeMode = 'light' | 'dark'
+type ThemeVariables = Record<string, string>
+type ThemeSurfaceTokens = Record<ThemeMode, ThemeVariables>
+
+const createTintedViptrueSurface = (hue: number, neonHue: number): ThemeSurfaceTokens => ({
+  light: {
+    '--background': `${hue} 32% 96%`,
+    '--foreground': `${hue} 28% 12%`,
+    '--secondary': `${hue} 30% 89%`,
+    '--secondary-foreground': `${hue} 28% 17%`,
+    '--muted': `${hue} 22% 92%`,
+    '--muted-foreground': `${hue} 12% 42%`,
+    '--accent': `${hue} 36% 88%`,
+    '--accent-foreground': `${hue} 30% 17%`,
+    '--border': `${hue} 25% 77% / 0.72`,
+    '--input': `${hue} 31% 93% / 0.92`,
+    '--card': `${hue} 48% 99% / 0.9`,
+    '--card-foreground': 'var(--foreground)',
+    '--popover': `${hue} 48% 99% / 0.97`,
+    '--popover-foreground': 'var(--foreground)',
+    '--sidebar-background': `${hue} 42% 95% / 0.92`,
+    '--sidebar-foreground': `${hue} 27% 18%`,
+    '--sidebar-accent': `${hue} 31% 88%`,
+    '--sidebar-accent-foreground': `${hue} 30% 17%`,
+    '--sidebar-border': `${hue} 25% 77% / 0.72`,
+    '--viptrue-neon': `${neonHue} 88% 48%`,
+    '--viptrue-bg-start': `${hue} 56% 99%`,
+    '--viptrue-bg-end': `${hue} 42% 89%`,
+  },
+  dark: {
+    '--background': `${hue} 25% 7%`,
+    '--foreground': `${hue} 18% 97%`,
+    '--secondary': `${hue} 26% 18%`,
+    '--secondary-foreground': `${hue} 18% 97%`,
+    '--muted': `${hue} 18% 14%`,
+    '--muted-foreground': `${hue} 11% 70%`,
+    '--accent': `${hue} 30% 18%`,
+    '--accent-foreground': `${hue} 18% 97%`,
+    '--border': `${hue} 30% 24% / 0.82`,
+    '--input': `${hue} 22% 14% / 0.92`,
+    '--card': `${hue} 25% 10% / 0.9`,
+    '--card-foreground': 'var(--foreground)',
+    '--popover': `${hue} 25% 9% / 0.97`,
+    '--popover-foreground': 'var(--foreground)',
+    '--sidebar-background': `${hue} 25% 8% / 0.94`,
+    '--sidebar-foreground': `${hue} 12% 82%`,
+    '--sidebar-accent': `${hue} 27% 16%`,
+    '--sidebar-accent-foreground': `${hue} 18% 97%`,
+    '--sidebar-border': `${hue} 30% 22% / 0.82`,
+    '--viptrue-neon': `${neonHue} 92% 62%`,
+    '--viptrue-bg-start': `${hue} 32% 12%`,
+    '--viptrue-bg-end': `${hue} 34% 5%`,
+  },
+})
+
+const viptrueThemeSurfaces: Record<ColorTheme, ThemeSurfaceTokens> = {
+  default: {
+    light: {
+      '--viptrue-neon': '190 91% 43%',
+      '--viptrue-bg-start': '345 50% 99%',
+      '--viptrue-bg-end': '338 39% 90%',
+    },
+    dark: {
+      '--viptrue-neon': '190 91% 55%',
+      '--viptrue-bg-start': '336 32% 12%',
+      '--viptrue-bg-end': '336 34% 5%',
+    },
+  },
+  red: createTintedViptrueSurface(0, 24),
+  rose: createTintedViptrueSurface(347, 314),
+  orange: createTintedViptrueSurface(25, 47),
+  green: createTintedViptrueSurface(145, 181),
+  blue: createTintedViptrueSurface(220, 191),
+  yellow: createTintedViptrueSurface(48, 25),
+  violet: createTintedViptrueSurface(263, 312),
+}
+
+const colorThemes = Object.fromEntries(
+  (Object.keys(baseColorThemes) as ColorTheme[]).map(colorThemeName => {
+    const baseTheme = baseColorThemes[colorThemeName]
+    const surface = viptrueThemeSurfaces[colorThemeName]
+
+    return [
+      colorThemeName,
+      {
+        ...baseTheme,
+        light: { ...baseTheme.light, ...surface.light },
+        dark: { ...baseTheme.dark, ...surface.dark },
+      },
+    ]
+  }),
+) as typeof baseColorThemes
+
 const initialState: ThemeProviderState = {
   theme: 'system',
   colorTheme: 'default',
@@ -559,6 +652,9 @@ const getRuntimeThemeVars = (themeVars: Record<string, string>, radiusValue: Rad
   '--sidebar-accent-foreground': themeVars['--sidebar-accent-foreground'] ?? themeVars['--accent-foreground'],
   '--sidebar-border': themeVars['--sidebar-border'] ?? themeVars['--border'],
   '--sidebar-ring': themeVars['--sidebar-ring'] ?? themeVars['--ring'],
+  '--viptrue-neon': themeVars['--viptrue-neon'] ?? themeVars['--primary'],
+  '--viptrue-bg-start': themeVars['--viptrue-bg-start'] ?? themeVars['--card'],
+  '--viptrue-bg-end': themeVars['--viptrue-bg-end'] ?? themeVars['--background'],
 })
 
 // Helper function to get system theme preference
@@ -605,6 +701,7 @@ export function ThemeProvider({
     root.classList.remove('light', 'dark')
     root.classList.add(themeMode)
     root.dataset.colorTheme = colorThemeName
+    root.style.colorScheme = themeMode
 
     // Apply color theme variables
     const colorThemeConfig = colorThemes[colorThemeName]

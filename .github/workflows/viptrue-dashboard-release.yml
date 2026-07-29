@@ -32,10 +32,15 @@ jobs:
         working-directory: dashboard
         run: bun run lint:viptrue
 
-      - name: Build and package
-        run: |
-          ./build_dashboard.sh
-          ./scripts/package-dashboard.sh "${GITHUB_REF_NAME}"
+      - name: Build dashboard
+        run: ./build_dashboard.sh
+
+      - name: Verify dashboard performance budgets
+        working-directory: dashboard
+        run: bun run verify:performance
+
+      - name: Package dashboard
+        run: ./scripts/package-dashboard.sh "${GITHUB_REF_NAME}"
 
       - name: Publish release assets
         env:

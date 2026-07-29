@@ -3,10 +3,10 @@
   "short_name": "VIPTrue",
   "icons": [
     {
-      "src": "/statics/brand/viptrue-mark.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "/statics/brand/viptrue-logo.png?v=3",
+      "sizes": "1024x585",
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
   "theme_color": "#170e14",

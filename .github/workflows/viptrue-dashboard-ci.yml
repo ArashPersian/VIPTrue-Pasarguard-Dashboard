@@ -48,6 +48,10 @@ jobs:
       - name: Build dashboard
         run: ./build_dashboard.sh
 
+      - name: Verify dashboard performance budgets
+        working-directory: dashboard
+        run: bun run verify:performance
+
       - name: Verify build entrypoints
         run: |
           test -s dashboard/build/index.html
