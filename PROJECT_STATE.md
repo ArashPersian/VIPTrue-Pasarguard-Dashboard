@@ -6,8 +6,9 @@
 - Working branch: `agent/fix-brand-theme-compat`
 - Base release: `v5.1.0-custom.2`
 - Base commit: `17d698b7c91c7719c680fe9d9cc75bf19716dacf`
-- Planned patch release: `v5.1.0-custom.3`
-- Draft PR: `#3`
+- Patch release: `v5.1.0-custom.3`
+- Merged PR: `#3`
+- Merge and release commit: `86f52b8671975a564017c23888b1076ef7945dd6`
 - Theme implementation commit: `8937415fa2ff017a501e02258d067f6992b7adbc`
 - Reseller hardening commit: `7cd02ae004ae83839dd480ce0fbd91b59ddb64b5`
 
@@ -76,8 +77,15 @@
   not contain the obsolete shield asset
 - GitHub `VIPTrue Dashboard CI` run `#14` passed on Reseller hardening commit
   `7cd02ae`
-- Draft PR `#3` is four commits ahead of `viptrue/v5.1.0`, zero commits
-  behind, conflict-free and mergeable
+- PR `#3` was merged into `viptrue/v5.1.0` at `86f52b8`
+- Release publisher workflow run `#2` (`30448278721`) completed successfully
+- Release tag `v5.1.0-custom.3` points exactly to merge commit `86f52b8`
+- Release contains the dashboard archive and its SHA256 file; the one-time
+  publisher branch was deleted automatically
+- Independently downloaded release archive SHA256:
+  `e8dc8aad9f4045cda7db299db02d98e46e72e3c3bfdbd29dfaca61b2003918cc`
+- Tagged installer SHA256:
+  `7080bebd7b3faa3e7659704e73d43eeb6796a388a3d776a4961bb6b18bc3719d`
 
 Known upstream baseline: Monaco/Ace editor worker chunks above Vite's generic
 `500 kB` warning remain unchanged from PasarGuard `v5.1.0`. The VIPTrue patch
@@ -85,13 +93,14 @@ does not add an editor dependency or eager-load those route-specific chunks.
 
 ## Remaining work
 
-- Review and merge the Draft PR
-- Publish and independently verify `v5.1.0-custom.3`
-- Install the patch release and smoke-test all eight palettes in production
+- Install `v5.1.0-custom.3` on the production server
+- Smoke-test Nginx, Dashboard and official logo endpoints
+- Hard-refresh and verify Owner plus Reseller branding, Live Preview,
+  palette-specific backgrounds and the hidden Reseller Cores preference
 
 ## Next exact step
 
-Mark PR `#3` ready, merge it into `viptrue/v5.1.0`, publish
-`v5.1.0-custom.3`, verify its archive and installer hashes independently, then
-install it on the server and smoke-test Owner and Reseller branding, themes and
-Live Preview.
+Download and verify the tagged installer, install `v5.1.0-custom.3` using
+archive SHA256
+`e8dc8aad9f4045cda7db299db02d98e46e72e3c3bfdbd29dfaca61b2003918cc`,
+then run the production Nginx/HTTP and Owner/Reseller browser smoke tests.
