@@ -6,6 +6,10 @@
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
+    "lint": "eslint .",
+    "lint:viptrue": "eslint src/app/providers/theme-provider.tsx src/brand/config.ts src/components/brand/brand-logo.tsx src/components/layout/footer.tsx src/components/layout/sidebar.tsx src/components/layout/sidebar-trigger-with-badge.tsx src/components/layout/version-badge.tsx src/components/layout/version-update-banner.tsx src/constants/Project.ts src/features/dashboard/components/workers-health-card.tsx src/pages/_dashboard.settings.theme.tsx src/utils/docs-url.ts",
+    "verify:viptrue": "node ../scripts/verify-viptrue-branding.mjs",
+    "verify:performance": "node ../scripts/verify-dashboard-performance.mjs",
     "gen:api": "orval",
     "wait-port": "wait-port http://localhost:$UVICORN_PORT/openapi.json",
     "wait-port-gen-api": "bun run wait-port && bun run gen:api"

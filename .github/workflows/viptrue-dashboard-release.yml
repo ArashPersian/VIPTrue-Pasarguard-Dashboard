@@ -1,0 +1,54 @@
+name: Release VIPTrue Dashboard
+
+on:
+  push:
+    tags:
+      - "v*-custom.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dashboard dependencies
+        working-directory: dashboard
+        run: bun install --frozen-lockfile
+
+      - name: Verify VIPTrue owner gates
+        working-directory: dashboard
+        run: bun run verify:viptrue
+
+      - name: Lint changed dashboard surfaces
+        working-directory: dashboard
+        run: bun run lint:viptrue
+
+      - name: Build dashboard
+        run: ./build_dashboard.sh
+
+      - name: Verify dashboard performance budgets
+        working-directory: dashboard
+        run: bun run verify:performance
+
+      - name: Package dashboard
+        run: ./scripts/package-dashboard.sh "${GITHUB_REF_NAME}"
+
+      - name: Publish release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            "dist/viptrue-dashboard-${GITHUB_REF_NAME}.tar.gz" \
+            "dist/viptrue-dashboard-${GITHUB_REF_NAME}.tar.gz.sha256" \
+            --verify-tag \
+            --title "VIPTrue Dashboard ${GITHUB_REF_NAME}" \
+            --notes "Compatible upstream version: $(cat .viptrue/upstream-version)"
