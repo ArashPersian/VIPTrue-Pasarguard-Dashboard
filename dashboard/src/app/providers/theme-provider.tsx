@@ -27,7 +27,7 @@ type ThemeProviderState = {
 }
 
 // Color theme definitions with proper typing
-const colorThemes: Record<
+const baseColorThemes: Record<
   ColorTheme,
   {
     name: string
@@ -38,56 +38,74 @@ const colorThemes: Record<
   default: {
     name: 'Default',
     light: {
-      '--background': '240 5% 96%',
-      '--foreground': '240 5% 10%',
-      '--primary': '216 46% 40%',
-      '--primary-foreground': '240 5% 98%',
-      '--secondary': '240 5% 90%',
-      '--secondary-foreground': '240 5% 20%',
-      '--muted': '240 5% 90%',
-      '--muted-foreground': '240 5% 40%',
-      '--accent': '240 5% 90%',
-      '--accent-foreground': '240 5% 20%',
+      '--background': '345 33% 96%',
+      '--foreground': '335 25% 14%',
+      '--primary': '342 100% 57%',
+      '--primary-foreground': '0 0% 100%',
+      '--secondary': '340 29% 88%',
+      '--secondary-foreground': '335 25% 18%',
+      '--muted': '342 22% 91%',
+      '--muted-foreground': '337 13% 42%',
+      '--accent': '341 38% 88%',
+      '--accent-foreground': '335 31% 18%',
       '--destructive': '0 72% 51%',
       '--destructive-foreground': '0 0% 98%',
-      '--border': '240 5% 80%',
-      '--input': '240 6% 91%',
-      '--ring': '216 46% 40%',
-      '--card': '240 5% 98%',
+      '--border': '338 25% 76% / 0.72',
+      '--input': '342 31% 93% / 0.92',
+      '--ring': '342 100% 57%',
+      '--card': '345 50% 99% / 0.88',
       '--card-foreground': 'var(--foreground)',
-      '--popover': 'var(--background)',
+      '--popover': '345 50% 99% / 0.96',
       '--popover-foreground': 'var(--foreground)',
-      '--chart-1': '221.2 83.2% 53.3%',
-      '--chart-2': '142.1 76.2% 36.3%',
-      '--chart-3': '24.6 95% 53.1%',
-      '--chart-4': '346.8 77.2% 49.8%',
-      '--chart-5': '262.1 83.3% 57.8%',
+      '--hover-primary': '342 84% 48%',
+      '--sidebar-background': '345 42% 95% / 0.9',
+      '--sidebar-foreground': '335 25% 18%',
+      '--sidebar-primary': '342 100% 57%',
+      '--sidebar-primary-foreground': '0 0% 100%',
+      '--sidebar-accent': '340 31% 88%',
+      '--sidebar-accent-foreground': '335 31% 18%',
+      '--sidebar-border': '338 25% 76% / 0.72',
+      '--sidebar-ring': '342 100% 57%',
+      '--chart-1': '342 100% 57%',
+      '--chart-2': '331 88% 61%',
+      '--chart-3': '314 69% 56%',
+      '--chart-4': '190 91% 43%',
+      '--chart-5': '270 72% 65%',
     },
     dark: {
-      '--background': '240 2% 11%',
-      '--foreground': '0 0% 98%',
-      '--primary': '216 46% 53%',
-      '--primary-foreground': '0 0% 5%',
-      '--secondary': '216 46% 53%',
-      '--secondary-foreground': '0 0% 5%',
-      '--muted': '0 0% 14.9%',
-      '--muted-foreground': '0 0% 63.9%',
-      '--accent': '240 4% 16%',
-      '--accent-foreground': '0 0% 98%',
+      '--background': '336 25% 7%',
+      '--foreground': '340 20% 97%',
+      '--primary': '342 100% 64%',
+      '--primary-foreground': '336 25% 7%',
+      '--secondary': '335 26% 18%',
+      '--secondary-foreground': '340 20% 97%',
+      '--muted': '336 18% 14%',
+      '--muted-foreground': '337 11% 70%',
+      '--accent': '336 30% 18%',
+      '--accent-foreground': '340 20% 97%',
       '--destructive': '0 72% 51%',
       '--destructive-foreground': '210 40% 98%',
-      '--border': '0 0% 18%',
-      '--input': '240 2% 16.5%',
-      '--ring': '215 16% 47%',
-      '--card': '240 2% 11.5%',
+      '--border': '337 30% 24% / 0.82',
+      '--input': '336 22% 14% / 0.92',
+      '--ring': '342 100% 64%',
+      '--card': '336 25% 10% / 0.88',
       '--card-foreground': 'var(--foreground)',
-      '--popover': 'var(--background)',
+      '--popover': '336 25% 9% / 0.96',
       '--popover-foreground': 'var(--foreground)',
-      '--chart-1': '217.2 91.2% 59.8%',
-      '--chart-2': '142.1 70.6% 45.3%',
-      '--chart-3': '20.5 90.2% 48.2%',
-      '--chart-4': '346.8 77.2% 49.8%',
-      '--chart-5': '263.4 70% 50.4%',
+      '--hover-primary': '342 100% 70%',
+      '--sidebar-background': '336 25% 8% / 0.92',
+      '--sidebar-foreground': '340 12% 82%',
+      '--sidebar-primary': '342 100% 64%',
+      '--sidebar-primary-foreground': '336 25% 7%',
+      '--sidebar-accent': '336 27% 16%',
+      '--sidebar-accent-foreground': '340 20% 97%',
+      '--sidebar-border': '337 30% 22% / 0.82',
+      '--sidebar-ring': '342 100% 64%',
+      '--chart-1': '342 100% 64%',
+      '--chart-2': '331 88% 61%',
+      '--chart-3': '314 69% 56%',
+      '--chart-4': '190 91% 55%',
+      '--chart-5': '270 72% 65%',
     },
   },
   red: {
@@ -477,6 +495,99 @@ const colorThemes: Record<
   },
 }
 
+type ThemeMode = 'light' | 'dark'
+type ThemeVariables = Record<string, string>
+type ThemeSurfaceTokens = Record<ThemeMode, ThemeVariables>
+
+const createTintedViptrueSurface = (hue: number, neonHue: number): ThemeSurfaceTokens => ({
+  light: {
+    '--background': `${hue} 32% 96%`,
+    '--foreground': `${hue} 28% 12%`,
+    '--secondary': `${hue} 30% 89%`,
+    '--secondary-foreground': `${hue} 28% 17%`,
+    '--muted': `${hue} 22% 92%`,
+    '--muted-foreground': `${hue} 12% 42%`,
+    '--accent': `${hue} 36% 88%`,
+    '--accent-foreground': `${hue} 30% 17%`,
+    '--border': `${hue} 25% 77% / 0.72`,
+    '--input': `${hue} 31% 93% / 0.92`,
+    '--card': `${hue} 48% 99% / 0.9`,
+    '--card-foreground': 'var(--foreground)',
+    '--popover': `${hue} 48% 99% / 0.97`,
+    '--popover-foreground': 'var(--foreground)',
+    '--sidebar-background': `${hue} 42% 95% / 0.92`,
+    '--sidebar-foreground': `${hue} 27% 18%`,
+    '--sidebar-accent': `${hue} 31% 88%`,
+    '--sidebar-accent-foreground': `${hue} 30% 17%`,
+    '--sidebar-border': `${hue} 25% 77% / 0.72`,
+    '--viptrue-neon': `${neonHue} 88% 48%`,
+    '--viptrue-bg-start': `${hue} 56% 99%`,
+    '--viptrue-bg-end': `${hue} 42% 89%`,
+  },
+  dark: {
+    '--background': `${hue} 25% 7%`,
+    '--foreground': `${hue} 18% 97%`,
+    '--secondary': `${hue} 26% 18%`,
+    '--secondary-foreground': `${hue} 18% 97%`,
+    '--muted': `${hue} 18% 14%`,
+    '--muted-foreground': `${hue} 11% 70%`,
+    '--accent': `${hue} 30% 18%`,
+    '--accent-foreground': `${hue} 18% 97%`,
+    '--border': `${hue} 30% 24% / 0.82`,
+    '--input': `${hue} 22% 14% / 0.92`,
+    '--card': `${hue} 25% 10% / 0.9`,
+    '--card-foreground': 'var(--foreground)',
+    '--popover': `${hue} 25% 9% / 0.97`,
+    '--popover-foreground': 'var(--foreground)',
+    '--sidebar-background': `${hue} 25% 8% / 0.94`,
+    '--sidebar-foreground': `${hue} 12% 82%`,
+    '--sidebar-accent': `${hue} 27% 16%`,
+    '--sidebar-accent-foreground': `${hue} 18% 97%`,
+    '--sidebar-border': `${hue} 30% 22% / 0.82`,
+    '--viptrue-neon': `${neonHue} 92% 62%`,
+    '--viptrue-bg-start': `${hue} 32% 12%`,
+    '--viptrue-bg-end': `${hue} 34% 5%`,
+  },
+})
+
+const viptrueThemeSurfaces: Record<ColorTheme, ThemeSurfaceTokens> = {
+  default: {
+    light: {
+      '--viptrue-neon': '190 91% 43%',
+      '--viptrue-bg-start': '345 50% 99%',
+      '--viptrue-bg-end': '338 39% 90%',
+    },
+    dark: {
+      '--viptrue-neon': '190 91% 55%',
+      '--viptrue-bg-start': '336 32% 12%',
+      '--viptrue-bg-end': '336 34% 5%',
+    },
+  },
+  red: createTintedViptrueSurface(0, 24),
+  rose: createTintedViptrueSurface(347, 314),
+  orange: createTintedViptrueSurface(25, 47),
+  green: createTintedViptrueSurface(145, 181),
+  blue: createTintedViptrueSurface(220, 191),
+  yellow: createTintedViptrueSurface(48, 25),
+  violet: createTintedViptrueSurface(263, 312),
+}
+
+const colorThemes = Object.fromEntries(
+  (Object.keys(baseColorThemes) as ColorTheme[]).map(colorThemeName => {
+    const baseTheme = baseColorThemes[colorThemeName]
+    const surface = viptrueThemeSurfaces[colorThemeName]
+
+    return [
+      colorThemeName,
+      {
+        ...baseTheme,
+        light: { ...baseTheme.light, ...surface.light },
+        dark: { ...baseTheme.dark, ...surface.dark },
+      },
+    ]
+  }),
+) as typeof baseColorThemes
+
 const initialState: ThemeProviderState = {
   theme: 'system',
   colorTheme: 'default',
@@ -529,6 +640,23 @@ const applyThemeVars = (vars: Record<string, string>) => {
   })
 }
 
+const getRuntimeThemeVars = (themeVars: Record<string, string>, radiusValue: Radius): Record<string, string> => ({
+  ...themeVars,
+  '--radius': radiusValue,
+  '--hover-primary': themeVars['--hover-primary'] ?? themeVars['--primary'],
+  '--sidebar-background': themeVars['--sidebar-background'] ?? themeVars['--background'],
+  '--sidebar-foreground': themeVars['--sidebar-foreground'] ?? themeVars['--foreground'],
+  '--sidebar-primary': themeVars['--sidebar-primary'] ?? themeVars['--primary'],
+  '--sidebar-primary-foreground': themeVars['--sidebar-primary-foreground'] ?? themeVars['--primary-foreground'],
+  '--sidebar-accent': themeVars['--sidebar-accent'] ?? themeVars['--accent'],
+  '--sidebar-accent-foreground': themeVars['--sidebar-accent-foreground'] ?? themeVars['--accent-foreground'],
+  '--sidebar-border': themeVars['--sidebar-border'] ?? themeVars['--border'],
+  '--sidebar-ring': themeVars['--sidebar-ring'] ?? themeVars['--ring'],
+  '--viptrue-neon': themeVars['--viptrue-neon'] ?? themeVars['--primary'],
+  '--viptrue-bg-start': themeVars['--viptrue-bg-start'] ?? themeVars['--card'],
+  '--viptrue-bg-end': themeVars['--viptrue-bg-end'] ?? themeVars['--background'],
+})
+
 // Helper function to get system theme preference
 const getSystemTheme = (): 'light' | 'dark' => {
   if (typeof window === 'undefined') return 'light'
@@ -572,15 +700,14 @@ export function ThemeProvider({
     // Remove existing theme classes
     root.classList.remove('light', 'dark')
     root.classList.add(themeMode)
+    root.dataset.colorTheme = colorThemeName
+    root.style.colorScheme = themeMode
 
     // Apply color theme variables
     const colorThemeConfig = colorThemes[colorThemeName]
     if (colorThemeConfig) {
       const themeVars = colorThemeConfig[themeMode]
-      applyThemeVars({
-        ...themeVars,
-        '--radius': radiusValue,
-      })
+      applyThemeVars(getRuntimeThemeVars(themeVars, radiusValue))
     }
   }, [])
 

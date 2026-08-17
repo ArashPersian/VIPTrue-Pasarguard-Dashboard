@@ -1,0 +1,202 @@
+/*
+ * VIPTrue visual layer.
+ *
+ * Keep brand-only overrides in this file so upstream dashboard updates can be
+ * merged without mixing visual changes into functional panel code.
+ */
+
+:root {
+  --background: 345 33% 96%;
+  --foreground: 335 25% 14%;
+  --muted: 342 22% 91%;
+  --muted-foreground: 337 13% 42%;
+  --card: 345 50% 99% / 0.88;
+  --card-foreground: 335 25% 14%;
+  --popover: 345 50% 99% / 0.96;
+  --popover-foreground: 335 25% 14%;
+  --border: 338 25% 76% / 0.72;
+  --input: 342 31% 93% / 0.92;
+  --primary: 342 100% 57%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 340 29% 88%;
+  --secondary-foreground: 335 25% 18%;
+  --accent: 341 38% 88%;
+  --accent-foreground: 335 31% 18%;
+  --ring: 342 100% 57%;
+  --hover-primary: 342 84% 48%;
+  --sidebar-background: 345 42% 95% / 0.9;
+  --sidebar-foreground: 335 25% 18%;
+  --sidebar-primary: 342 100% 57%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 340 31% 88%;
+  --sidebar-accent-foreground: 335 31% 18%;
+  --sidebar-border: 338 25% 76% / 0.72;
+  --sidebar-ring: 342 100% 57%;
+  --chart-1: 342 100% 57%;
+  --chart-2: 331 88% 61%;
+  --chart-3: 314 69% 56%;
+  --chart-4: 190 91% 43%;
+  --chart-5: 270 72% 65%;
+  --viptrue-neon: 190 91% 43%;
+  --viptrue-bg-start: 345 50% 99%;
+  --viptrue-bg-end: 338 39% 90%;
+}
+
+.dark {
+  --background: 336 25% 7%;
+  --foreground: 340 20% 97%;
+  --muted: 336 18% 14%;
+  --muted-foreground: 337 11% 70%;
+  --card: 336 25% 10% / 0.88;
+  --card-foreground: 340 20% 97%;
+  --popover: 336 25% 9% / 0.96;
+  --popover-foreground: 340 20% 97%;
+  --border: 337 30% 24% / 0.82;
+  --input: 336 22% 14% / 0.92;
+  --primary: 342 100% 64%;
+  --primary-foreground: 336 25% 7%;
+  --secondary: 335 26% 18%;
+  --secondary-foreground: 340 20% 97%;
+  --accent: 336 30% 18%;
+  --accent-foreground: 340 20% 97%;
+  --ring: 342 100% 64%;
+  --hover-primary: 342 100% 70%;
+  --sidebar-background: 336 25% 8% / 0.92;
+  --sidebar-foreground: 340 12% 82%;
+  --sidebar-primary: 342 100% 64%;
+  --sidebar-primary-foreground: 336 25% 7%;
+  --sidebar-accent: 336 27% 16%;
+  --sidebar-accent-foreground: 340 20% 97%;
+  --sidebar-border: 337 30% 22% / 0.82;
+  --sidebar-ring: 342 100% 64%;
+  --viptrue-neon: 190 91% 55%;
+  --viptrue-bg-start: 336 32% 12%;
+  --viptrue-bg-end: 336 34% 5%;
+}
+
+html {
+  min-height: 100%;
+  background: hsl(var(--background));
+}
+
+body {
+  min-height: 100%;
+  background-color: hsl(var(--background)) !important;
+  background-image:
+    radial-gradient(circle at 86% 8%, hsl(var(--primary) / 0.2) 0, transparent 34rem), radial-gradient(circle at 8% 42%, hsl(var(--viptrue-neon) / 0.13) 0, transparent 30rem),
+    linear-gradient(145deg, hsl(var(--viptrue-bg-start)) 0%, hsl(var(--background)) 55%, hsl(var(--viptrue-bg-end)) 100%) !important;
+  background-attachment: scroll !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+}
+
+#root,
+[data-sidebar='inset'] {
+  background: transparent !important;
+}
+
+.bg-card {
+  box-shadow:
+    0 20px 55px -38px hsl(var(--primary) / 0.32),
+    inset 0 1px 0 rgb(255 255 255 / 70%);
+}
+
+.dark .bg-card {
+  box-shadow:
+    0 22px 60px -38px hsl(var(--primary) / 0.3),
+    inset 0 1px 0 rgb(255 255 255 / 5%);
+}
+
+.viptrue-brand-logo {
+  position: relative;
+  display: grid;
+  width: 11rem;
+  height: 6.25rem;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.5rem;
+  background: radial-gradient(circle at 50% 88%, hsl(var(--primary) / 0.2), transparent 54%), linear-gradient(145deg, hsl(var(--card)), hsl(var(--accent) / 0.88));
+  box-shadow:
+    0 18px 48px -26px hsl(var(--primary) / 0.42),
+    inset 0 1px 0 rgb(255 255 255 / 88%);
+  isolation: isolate;
+}
+
+.dark .viptrue-brand-logo {
+  background: radial-gradient(circle at 50% 88%, hsl(var(--primary) / 0.18), transparent 54%), linear-gradient(145deg, hsl(var(--card)), hsl(var(--background)));
+  box-shadow:
+    0 18px 48px -24px hsl(var(--primary) / 0.56),
+    inset 0 1px 0 rgb(255 255 255 / 10%);
+}
+
+.viptrue-brand-logo__glow {
+  position: absolute;
+  inset: 20% 12%;
+  z-index: -1;
+  border-radius: 999px;
+  background: hsl(var(--primary) / 0.28);
+  filter: blur(24px);
+}
+
+.viptrue-brand-logo img {
+  width: 94%;
+  height: 94%;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 12px hsl(var(--foreground) / 0.2)) drop-shadow(0 0 10px hsl(var(--primary) / 0.18));
+  user-select: none;
+}
+
+.viptrue-brand-logo--compact {
+  width: 3rem;
+  height: 2.25rem;
+  flex: 0 0 auto;
+  border-radius: 0.8rem;
+}
+
+.viptrue-brand-logo--compact img {
+  width: 96%;
+  height: 96%;
+}
+
+.viptrue-theme-preview {
+  background:
+    radial-gradient(circle at 88% 10%, hsl(var(--primary) / 0.22) 0, transparent 14rem), radial-gradient(circle at 8% 76%, hsl(var(--viptrue-neon) / 0.15) 0, transparent 12rem),
+    linear-gradient(145deg, hsl(var(--viptrue-bg-start)), hsl(var(--background)) 55%, hsl(var(--viptrue-bg-end)));
+}
+
+.viptrue-theme-preview__sidebar {
+  background: hsl(var(--sidebar-background));
+  color: hsl(var(--sidebar-foreground));
+  box-shadow: inset -1px 0 0 hsl(var(--border));
+}
+
+.viptrue-theme-preview__card {
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  box-shadow: 0 16px 38px -30px hsl(var(--primary) / 0.55);
+}
+
+.viptrue-theme-preview__chart {
+  background: linear-gradient(to top, hsl(var(--primary) / 0.16), transparent 64%), repeating-linear-gradient(to bottom, transparent 0 1.2rem, hsl(var(--border)) 1.2rem calc(1.2rem + 1px));
+}
+
+@media (hover: none), (pointer: coarse), (max-width: 767px) {
+  body {
+    background-size:
+      150% 52rem,
+      150% 58rem,
+      cover !important;
+    background-position:
+      82% 0,
+      10% 24rem,
+      center !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viptrue-brand-logo__glow {
+    filter: none;
+  }
+}
