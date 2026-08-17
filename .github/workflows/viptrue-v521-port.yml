@@ -1,0 +1,239 @@
+name: Port VIPTrue onto PasarGuard v5.2.1
+
+on:
+  push:
+    branches:
+      - agent/v5.2.1-compat
+    paths:
+      - .github/workflows/viptrue-v521-port.yml
+
+permissions:
+  contents: write
+
+jobs:
+  port:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact compatibility branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/v5.2.1-compat
+          fetch-depth: 0
+
+      - name: Merge VIPTrue layer and resolve known v5.2.1 overlaps
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin viptrue/v5.1.0
+
+          test "$(git rev-parse HEAD^)" != "" 2>/dev/null || true
+          test "$(git show -s --format=%P HEAD | wc -w)" -eq 1
+          grep -q 'version = "5.2.1"' pyproject.toml || { echo 'Expected PasarGuard v5.2.1 base'; exit 1; }
+
+          set +e
+          git merge --no-ff --no-commit origin/viptrue/v5.1.0
+          merge_status=$?
+          set -e
+
+          if [ "$merge_status" -ne 0 ]; then
+            echo "Conflicts detected; validating whitelist."
+          fi
+
+          conflicts="$(git diff --name-only --diff-filter=U || true)"
+          printf '%s\n' "$conflicts"
+          unexpected="$(printf '%s\n' "$conflicts" | grep -vE '^(dashboard/package.json|dashboard/public/statics/locales/(en|fa|ru|zh)\.json|dashboard/src/components/layout/sidebar\.tsx|dashboard/src/features/hosts/dialogs/host-modal\.tsx|dashboard/src/pages/login\.tsx)$' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected conflicts:"
+            printf '%s\n' "$unexpected"
+            exit 1
+          fi
+
+          # Package metadata/dependencies always come from upstream 5.2.1.
+          git checkout --ours dashboard/package.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('dashboard/package.json')
+          data = json.loads(p.read_text())
+          assert data['version'] == '5.2.1', data['version']
+          scripts = data.setdefault('scripts', {})
+          scripts['lint'] = 'eslint .'
+          scripts['lint:viptrue'] = 'eslint src/app/providers/theme-provider.tsx src/brand/config.ts src/brand/i18n-overrides.ts src/components/brand/brand-logo.tsx src/components/layout/footer.tsx src/components/layout/sidebar.tsx src/components/layout/sidebar-trigger-with-badge.tsx src/components/layout/version-badge.tsx src/components/layout/version-update-banner.tsx src/constants/Project.ts src/features/dashboard/components/workers-health-card.tsx src/pages/_dashboard.settings.theme.tsx src/utils/docs-url.ts'
+          scripts['verify:viptrue'] = 'node ../scripts/verify-viptrue-branding.mjs'
+          scripts['verify:performance'] = 'node ../scripts/verify-dashboard-performance.mjs'
+          p.write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n')
+          PY
+
+          # Keep every new upstream translation key. VIPTrue strings are now a runtime overlay.
+          for f in en fa ru zh; do
+            git checkout --ours "dashboard/public/statics/locales/${f}.json"
+          done
+
+          # Sidebar: preserve the mature VIPTrue owner/reseller UI, then replay the
+          # two functional sidebar changes introduced upstream in 5.2.1.
+          git checkout --theirs dashboard/src/components/layout/sidebar.tsx
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('dashboard/src/components/layout/sidebar.tsx')
+          s = p.read_text()
+          core_block = """          {\n            title: 'settings.cores.title',\n            url: '/nodes/cores',\n            icon: Cpu,\n            matchPrefix: true,\n          },\n"""
+          wg_block = """          {\n            title: 'nodes.wireguard.title',\n            url: '/nodes/wireguard',\n            icon: Network,\n          },\n"""
+          if "url: '/nodes/wireguard'" not in s:
+              if core_block not in s:
+                  raise SystemExit('Cannot locate Cores nav anchor for WireGuard 5.2.1 port')
+              s = s.replace(core_block, core_block + wg_block, 1)
+          old_bulk_wg = """                      {\n                        title: 'bulk.wireguardPeerIps',\n                        url: '/bulk/wireguard',\n                        icon: Network,\n                      },\n"""
+          s = s.replace(old_bulk_wg, '', 1)
+          if "url: '/bulk/wireguard'" in s:
+              raise SystemExit('Legacy bulk WireGuard route still present in sidebar')
+          p.write_text(s)
+          PY
+
+          # Host modal: all FinalMask/5.2.1 behavior stays upstream; only visible example is branded.
+          git checkout --ours dashboard/src/features/hosts/dialogs/host-modal.tsx
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('dashboard/src/features/hosts/dialogs/host-modal.tsx')
+          s = p.read_text()
+          old = 'Remark (e.g. PasarGuard-Host)'
+          if old not in s:
+              raise SystemExit('Host remark branding anchor changed upstream')
+          p.write_text(s.replace(old, 'Remark (e.g. VIPTrue-Host)', 1))
+          PY
+
+          # Login: retain every v5.2.1 owner setup/auth change and reapply only VIPTrue presentation.
+          git checkout --ours dashboard/src/pages/login.tsx
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('dashboard/src/pages/login.tsx')
+          s = p.read_text()
+          s = s.replace("import { useTheme } from '@/app/providers/theme-provider'\n", '')
+          theme_import = "import { ThemeToggle } from '@/components/common/theme-toggle'\n"
+          brand_imports = "import { ThemeToggle } from '@/components/common/theme-toggle'\nimport { VIPTRUE_BRAND } from '@/brand/config'\nimport { BrandLogo } from '@/components/brand/brand-logo'\n"
+          if "@/brand/config" not in s:
+              if theme_import not in s:
+                  raise SystemExit('Login ThemeToggle import anchor changed upstream')
+              s = s.replace(theme_import, brand_imports, 1)
+          s = s.replace("  const { resolvedTheme } = useTheme()\n", '')
+          old = """              <img src={resolvedTheme === 'dark' ? '/statics/favicon/logo.png' : '/statics/favicon/logo-dark.png'} alt=\"PasarGuard Logo\" className=\"h-20 w-20 object-contain\" />\n              <span className=\"text-2xl font-semibold\">{view === 'login' ? t('login.loginYourAccount') : t('setup.ownerAccess', { defaultValue: 'Owner access' })}</span>\n"""
+          new = """              <BrandLogo />\n              <span className=\"mt-2 bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 bg-clip-text text-2xl font-black tracking-tight text-transparent\">{VIPTRUE_BRAND.loginTitle}</span>\n              <span className=\"text-xl font-semibold\">{view === 'login' ? t('login.loginYourAccount') : t('setup.ownerAccess', { defaultValue: 'Owner access' })}</span>\n"""
+          if old not in s:
+              raise SystemExit('Login logo/title anchor changed upstream')
+          p.write_text(s.replace(old, new, 1))
+          PY
+
+          # Runtime brand translations keep upstream locale files conflict-free.
+          cat > dashboard/src/brand/i18n-overrides.ts <<'EOF'
+          export const VIPTRUE_I18N_OVERRIDES = {
+            en: {
+              pasarguard: 'VIPTrue',
+              dashboardDescription: 'VIPTrue Management Dashboard',
+              supportUs: 'VIPTrue Support',
+              'nodes.addNewPasarGuardNode': 'Create New VIPTrue Node',
+              'nodes.title': 'Using VIPTrue-Node, you are able to scale up your connection quality by creating different nodes on different servers.',
+              donation: {
+                title: 'Support VIPTrue',
+                message: 'Your support helps us improve VIPTrue and build better features for everyone!',
+              },
+            },
+            fa: {
+              pasarguard: 'VIPTrue',
+              dashboardDescription: 'داشبورد مدیریت VIPTrue',
+              supportUs: 'پشتیبانی VIPTrue',
+              'nodes.addNewPasarGuardNode': 'افزودن گره VIPTrue',
+              donation: {
+                title: 'حمایت از VIPTrue',
+                message: 'حمایت شما به ما کمک می‌کند تا VIPTrue را بهبود بخشیم و ویژگی‌های بهتری برای همه بسازیم!',
+              },
+            },
+            ru: {
+              pasarguard: 'VIPTrue',
+              dashboardDescription: 'Панель управления VIPTrue',
+              supportUs: 'Поддержка VIPTrue',
+              'nodes.addNewPasarGuardNode': 'Добавить новый узел VIPTrue',
+              donation: {
+                title: 'Поддержать VIPTrue',
+                message: 'Ваша поддержка помогает нам улучшать VIPTrue и создавать новые возможности.',
+              },
+            },
+            zh: {
+              pasarguard: 'VIPTrue',
+              dashboardDescription: 'VIPTrue 管理仪表板',
+              supportUs: 'VIPTrue 支持',
+              'nodes.addNewPasarGuardNode': '添加新的 VIPTrue 节点',
+              donation: {
+                title: '支持 VIPTrue',
+                message: '您的支持将帮助我们改进 VIPTrue，并为所有人打造更好的功能！',
+              },
+            },
+          } as const
+          EOF
+
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('dashboard/src/locales/i18n.ts')
+          s = p.read_text()
+          import_anchor = "import { joinURL } from 'ufo'\n"
+          brand_import = "import { joinURL } from 'ufo'\nimport { VIPTRUE_I18N_OVERRIDES } from '@/brand/i18n-overrides'\n"
+          if "VIPTRUE_I18N_OVERRIDES" not in s:
+              if import_anchor not in s:
+                  raise SystemExit('i18n import anchor changed upstream')
+              s = s.replace(import_anchor, brand_import, 1)
+          init_anchor = "\ni18n\n  .use(LanguageDetector)"
+          helper = """
+
+          const applyVIPTrueTranslations = (language?: string) => {
+            const normalized = (language || i18n.resolvedLanguage || i18n.language || 'en').split('-')[0] as keyof typeof VIPTRUE_I18N_OVERRIDES
+            const overrides = VIPTRUE_I18N_OVERRIDES[normalized] || VIPTRUE_I18N_OVERRIDES.en
+            i18n.addResourceBundle(normalized, 'translation', overrides, true, true)
+          }
+
+          i18n.on('loaded', () => applyVIPTrueTranslations())
+          i18n.on('languageChanged', language => applyVIPTrueTranslations(language))
+          """
+          if 'const applyVIPTrueTranslations' not in s:
+              if init_anchor not in s:
+                  raise SystemExit('i18n init anchor changed upstream')
+              s = s.replace(init_anchor, helper + init_anchor, 1)
+          callback_anchor = "      const lang = i18n.language\n"
+          if "      applyVIPTrueTranslations(i18n.language)\n" not in s:
+              if callback_anchor not in s:
+                  raise SystemExit('i18n callback anchor changed upstream')
+              s = s.replace(callback_anchor, "      applyVIPTrueTranslations(i18n.language)\n" + callback_anchor, 1)
+          p.write_text(s)
+          PY
+
+          printf 'v5.2.1\n' > .viptrue/upstream-version
+          git add -A
+          if git diff --name-only --diff-filter=U | grep -q .; then
+            echo 'Unresolved conflicts remain'
+            git diff --name-only --diff-filter=U
+            exit 1
+          fi
+          git diff --cached --check
+          git commit -m "chore: port VIPTrue customizations onto PasarGuard v5.2.1"
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install v5.2.1 dashboard dependencies
+        working-directory: dashboard
+        run: bun install --frozen-lockfile
+
+      - name: Focused VIPTrue lint
+        working-directory: dashboard
+        run: bun run lint:viptrue
+
+      - name: Build full PasarGuard v5.2.1 dashboard with VIPTrue layer
+        run: ./build_dashboard.sh
+
+      - name: Verify performance budgets
+        working-directory: dashboard
+        run: bun run verify:performance
+
+      - name: Push tested compatibility merge
+        run: git push origin HEAD:agent/v5.2.1-compat
