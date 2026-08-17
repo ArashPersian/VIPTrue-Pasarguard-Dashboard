@@ -1,0 +1,33 @@
+name: Publish v5.2.1-custom.1 tag
+
+on:
+  push:
+    branches:
+      - agent/publish-v5.2.1-custom.1
+    paths:
+      - .github/workflows/publish-v5.2.1-custom.1.yml
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact release commit
+        uses: actions/checkout@v4
+        with:
+          ref: 98e2054f6e40fcc5a0c5bb32f1c2e85625210cb3
+          fetch-depth: 0
+      - name: Verify release source
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "98e2054f6e40fcc5a0c5bb32f1c2e85625210cb3"
+          test "$(cat .viptrue/upstream-version)" = "v5.2.1"
+      - name: Create and push tag
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a v5.2.1-custom.1 -m "VIPTrue Dashboard v5.2.1-custom.1"
+          git push origin v5.2.1-custom.1
