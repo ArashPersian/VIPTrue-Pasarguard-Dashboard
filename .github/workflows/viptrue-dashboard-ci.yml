@@ -1,0 +1,72 @@
+name: VIPTrue Dashboard CI
+
+on:
+  pull_request:
+    paths:
+      - "dashboard/**"
+      - "scripts/**"
+      - ".viptrue/**"
+      - ".github/workflows/viptrue-dashboard-ci.yml"
+  push:
+    branches:
+      - main
+      - "agent/**"
+      - "upstream/**"
+    paths:
+      - "dashboard/**"
+      - "scripts/**"
+      - ".viptrue/**"
+      - ".github/workflows/viptrue-dashboard-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dashboard dependencies
+        working-directory: dashboard
+        run: bun install --frozen-lockfile
+
+      - name: Verify VIPTrue branding and owner gates
+        working-directory: dashboard
+        run: bun run verify:viptrue
+
+      - name: Lint changed dashboard surfaces
+        working-directory: dashboard
+        run: bun run lint:viptrue
+
+      - name: Build dashboard
+        run: ./build_dashboard.sh
+
+      - name: Verify dashboard performance budgets
+        working-directory: dashboard
+        run: bun run verify:performance
+
+      - name: Verify build entrypoints
+        run: |
+          test -s dashboard/build/index.html
+          test -s dashboard/build/404.html
+          test -d dashboard/build/statics
+          grep -q "VIPTrue Secure Access" dashboard/build/index.html
+
+      - name: Package test artifact
+        run: ./scripts/package-dashboard.sh ci-${{ github.sha }}
+
+      - name: Upload dashboard artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: viptrue-dashboard-${{ github.sha }}
+          path: |
+            dist/*.tar.gz
+            dist/*.sha256
+          retention-days: 7

@@ -1,5 +1,7 @@
-export const REPO_URL = 'https://github.com/PasarGuard/panel'
-export const ORGANIZATION_URL = 'https://github.com/PasarGuard'
-export const DONATION_URL = 'https://donate.pasarguard.org'
-export const DISCUSSION_GROUP = 'https://t.me/Pasar_Guard'
-export const DOCUMENTATION = 'https://docs.pasarguard.org'
+export const REPO_URL = 'https://github.com/ArashPersian/VIPTrue-Pasarguard-Dashboard'
+export const ORGANIZATION_URL = 'https://github.com/ArashPersian'
+export const SUPPORT_URL = 'https://t.me/VIPTrueOwner'
+
+// These URLs are intentionally kept separate from reseller-visible branding.
+// They are used only by owner-gated update components.
+export const UPSTREAM_RELEASES_URL = 'https://github.com/PasarGuard/panel/releases/latest'
