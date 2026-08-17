@@ -4,13 +4,13 @@
 - Upstream compatibility target: PasarGuard `v5.2.1`
 - Official upstream commit: `e81877c0df64e5f5235f4355b0490b6bb38e3adc`
 - Compatibility branch: `viptrue/v5.2.1`
-- Working branch: `agent/v5.2.1-compat`
-- Tested compatibility merge commit: `d581ce186969460ff7a64fcc5568208b8715acf0`
-- Draft compatibility PR: `#5`
-- PR base: official `viptrue/v5.2.1` tree at `e81877c0df64e5f5235f4355b0490b6bb38e3adc`
+- Working branch used for compatibility: `agent/v5.2.1-compat`
+- Merged compatibility PR: `#5`
+- Merge commit: `98e2054f6e40fcc5a0c5bb32f1c2e85625210cb3`
 - Previous release: `v5.1.0-custom.3`
-- Planned release: `v5.2.1-custom.1` (not tagged or released yet)
-- Production deployment: unchanged; no v5.2.1 deployment has been performed
+- Current release: `v5.2.1-custom.1`
+- Release archive SHA256: `e8e4bf96c5570396382f9559e3630d21512616f4f4c939533c3eb0507c23e6bc`
+- Production deployment: not performed yet
 
 ## Compatibility policy
 
@@ -41,19 +41,15 @@
 - Retained VIPTrue winged logo, Control Center/Reseller titles, support link,
   owner-only update controls, reseller privacy guards, eight-palette theme
   system, Live Preview, and release/install/rollback tooling.
-- Updated static verification for the translation overlay and v5.2.1 WireGuard
-  route invariants.
-- Kept `scripts/port-viptrue-v5.2.1.sh` as the deterministic upgrade audit.
-- Removed the temporary one-shot compatibility GitHub Actions workflow after the
-  successful port.
+- Removed the temporary compatibility workflow from the final branch.
 
 ## Upstream v5.2.1 functionality retained
 
 The final PR diff against official v5.2.1 contains no `app/`, database migration,
 backend, core or generated upstream API modifications. The upstream v5.2.x
 Xray, WireGuard, Reality Scan, FinalMask/Salamander, database/API, and dashboard
-feature set therefore remains intact. The 37-file PR diff is limited to the
-VIPTrue Dashboard/branding/CI/docs/deploy/tooling layer.
+feature set therefore remains intact. The PR diff is limited to the VIPTrue
+Dashboard/branding/CI/docs/deploy/tooling layer.
 
 ## Verification completed on 2026-08-17
 
@@ -70,18 +66,31 @@ Compatibility run `#5` (`32024680584`) passed:
 - official VIPTrue logo: `353196` bytes
 - total dashboard build: `22307722` bytes across `325` static files
 - total-build budget calibrated from `22_250_000` to `22_500_000` bytes for the
-  legitimate upstream feature growth; all per-bundle budgets remain unchanged
-  and passed.
+  legitimate upstream feature growth; all per-bundle budgets remain unchanged.
 
-Draft PR `#5` verification:
+PR verification:
 
-- PR is conflict-free and GitHub reports `mergeable: true`.
+- PR `#5` was conflict-free and GitHub reported `mergeable: true`.
 - Final diff against official v5.2.1 was audited: no backend/API/migration/core
   files differ from upstream.
-- `VIPTrue Dashboard CI` run `#18` (`32024873982`) passed every step:
-  dependency install, branding/owner gates, focused lint, production build,
-  performance budgets, build entrypoint checks, test packaging and artifact
-  upload.
+- `VIPTrue Dashboard CI` run `#18` (`32024873982`) passed all packaging gates.
+- Final head CI run `#19` (`32024951064`) also completed successfully before
+  merge.
+- PR `#5` merged into `viptrue/v5.2.1` at
+  `98e2054f6e40fcc5a0c5bb32f1c2e85625210cb3`.
+
+Release verification:
+
+- Tag `v5.2.1-custom.1` points to merge commit
+  `98e2054f6e40fcc5a0c5bb32f1c2e85625210cb3`.
+- One-shot publisher tag run `32026065472` passed.
+- Release publisher run `32026114231` passed dependency install, VIPTrue
+  invariants, lint, production build, performance budgets, packaging and
+  GitHub release publication.
+- Release `v5.2.1-custom.1` is published with archive and SHA256 assets.
+- Release archive size: `6615560` bytes.
+- Release archive SHA256:
+  `e8e4bf96c5570396382f9559e3630d21512616f4f4c939533c3eb0507c23e6bc`.
 
 Known upstream baseline: Monaco/Ace editor worker chunks above Vite's generic
 500 kB warning remain route-specific upstream editor assets; VIPTrue does not
@@ -89,19 +98,21 @@ make them eager or introduce a new editor dependency.
 
 ## Remaining work
 
-- Perform Owner and Reseller browser/runtime smoke tests against a staged or
-  non-production v5.2.1 panel, including Login/Owner setup, Dashboard, Users,
-  Nodes/WireGuard, Hosts/FinalMask, Theme/Live Preview and reseller route/privacy
-  restrictions.
-- If runtime smoke tests pass, mark PR `#5` ready and merge it into
-  `viptrue/v5.2.1`.
-- Prepare `v5.2.1-custom.1` only after explicit Release approval.
-- Before production deployment, back up panel/database/.env/Nginx/dashboard and
-  use the staged install/rollback workflow.
+- On production, create a fresh PasarGuard database/application backup plus
+  `.env`, Docker Compose, Nginx and current VIPTrue dashboard-link backup.
+- Detect the currently installed database type, Docker image/tag, compose
+  services and current dashboard symlink before changing anything.
+- Stage `v5.2.1-custom.1` without switching the active dashboard.
+- Upgrade the PasarGuard backend using the official update path only after the
+  backup and preflight checks succeed.
+- Atomically switch the VIPTrue dashboard to `v5.2.1-custom.1`, validate Nginx,
+  and run production Owner/User/Node/API/subscription smoke checks.
+- Roll back backend/database and dashboard symlink if any production smoke test
+  fails.
 
 ## Next Exact Step
 
-Run Owner and Reseller runtime smoke tests for PR `#5` on a non-production or
-staged PasarGuard v5.2.1 instance. If all tests pass, request explicit approval
-to merge PR `#5` and then separately request approval before tagging/releasing
-`v5.2.1-custom.1` or deploying it to production.
+Run the production preflight/backup/staging command. Do not switch the active
+Dashboard and do not run the PasarGuard backend update until the preflight
+output confirms the current database/image/compose state and that the new
+`v5.2.1-custom.1` archive has been downloaded and SHA256 verified.
