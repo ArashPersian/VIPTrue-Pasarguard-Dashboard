@@ -1,8 +1,8 @@
 # PROJECT_STATE
 
 Last updated: 2026-09-20 Europe/Berlin
-State version: `2026.09.20-v5.4.1-production.1`
-Status: **V5.4.1 RELEASED AND DEPLOYED / LIVE SMOKE GATES PASS / ROLLBACK RETAINED**
+State version: `2026.09.20-v5.4.1-production.2`
+Status: **V5.4.1 DEPLOYED / LOGICAL RESTORE PROVEN / AUTHENTICATED ROLE CHECKS PENDING**
 
 ## 1. Authoritative repository state
 
@@ -117,13 +117,31 @@ Release and deployment evidence recorded on 2026-09-20:
 - the live node aggregate remained unchanged across cutover: seven connected,
   four disabled and one pre-existing error.
 
-The installed automatic backup archive passes ZIP integrity checks but its
-plain-SQL TimescaleDB payload is not independently restorable into a fresh
-2.27.1 cluster because it attempts to copy an upgraded internal catalog table
-into the fresh-install view of the same name. It is therefore not accepted as
-the database rollback source. A verified physical PostgreSQL recovery checkpoint
-is required immediately before Production cutover; the automatic logical
-backup/restore tooling must be repaired separately.
+The original automatic backup archive passed ZIP integrity but its plain-SQL
+TimescaleDB payload was not independently restorable into a fresh 2.27.1
+cluster: an upgraded internal catalog relation was a table on the source and a
+view on a fresh same-version destination. This defect was repaired after
+cutover with the versioned overlay in `ops/pasarguard-backup-fix`:
+
+- source and destination were verified to contain zero application hypertables
+  and zero chunks;
+- extension-owned internal schemas are excluded only for that zero-hypertable
+  case and are recreated by the destination extension;
+- upstream `PasarGuard/scripts` commit `1fce1b19` is pinned and every downloaded
+  file is checksum-verified before the small patch is applied;
+- the upstream unit suite passed 191 tests with zero failures;
+- both custom-format and existing plain-SQL restore paths passed against a
+  fresh same-image isolated cluster with matching per-table row-count
+  fingerprints;
+- a new archive produced by the installed managed bundle passed ZIP/payload
+  validation and a separate full isolated restore: 31 public tables, Alembic
+  revision `48a6bcb8bba1`, zero hypertables, zero chunks and all 12 nodes;
+- temporary containers, networks, volumes and extracted files were removed;
+  no external archive upload occurred during the acceptance test.
+
+The scheduled backup now invokes the managed pinned bundle. The system
+PasarGuard CLI remains unchanged, and the pre-cutover physical checkpoint is
+still retained as an independent rollback source.
 
 Existing v5.2.1 Production release evidence follows.
 
@@ -224,8 +242,6 @@ restart Nginx, alter the database or modify customer traffic.
 
 ## 8. Remaining compatibility/operations work
 
-- Repair and restore-test the installer-managed TimescaleDB logical backup
-  format before treating those automatic archives as database recovery media.
 - Complete authenticated Owner/Reseller/User and subscription-path acceptance
   checks when test credentials are available; unauthenticated API, dashboard,
   database, node aggregate, Nginx and backend-log smoke gates already pass.
@@ -238,7 +254,8 @@ restart Nginx, alter the database or modify customer traffic.
 
 ## 9. Next Exact Step
 
-Repair the TimescaleDB logical backup/restore implementation and prove it by
-restoring a fresh automatic backup into an isolated same-version cluster. Do
-not remove the verified physical checkpoint or the v5.2.1 rollback anchors
-until that recovery test and the post-deployment observation window pass.
+Use the logged-in Production browser session to complete read-only
+Owner/Reseller/User and subscription-path acceptance without creating,
+renewing, provisioning, deleting or financially mutating any record. Keep the
+physical checkpoint and v5.2.1 rollback anchors until those checks and the
+post-deployment observation window pass.
