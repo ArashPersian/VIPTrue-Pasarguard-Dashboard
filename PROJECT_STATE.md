@@ -1,8 +1,8 @@
 # PROJECT_STATE
 
 Last updated: 2026-09-19 Europe/Berlin
-State version: `2026.09.19-v5.4.1-compatibility.1`
-Status: **V5.4.1 CANDIDATE BUILT LOCALLY / REMOTE CI AND STAGING MIGRATION PENDING / PRODUCTION UNCHANGED**
+State version: `2026.09.19-v5.4.1-compatibility.2`
+Status: **V5.4.1 CI AND ISOLATED PRODUCTION-CLONE MIGRATION PASS / RELEASE PENDING / PRODUCTION UNCHANGED**
 
 ## 1. Authoritative repository state
 
@@ -23,8 +23,8 @@ Status: **V5.4.1 CANDIDATE BUILT LOCALLY / REMOTE CI AND STAGING MIGRATION PENDI
 - Release archive SHA256: `e8e4bf96c5570396382f9559e3630d21512616f4f4c939533c3eb0507c23e6bc`
 
 The default `main` branch is not the authoritative VIPTrue customized line.
-Until the new candidate passes remote CI, restored-database migration testing
-and live smoke gates, `viptrue/v5.2.1` remains the Production source of truth.
+Until the new release is published and live smoke gates pass,
+`viptrue/v5.2.1` remains the Production source of truth.
 
 ## 2. Compatibility policy
 
@@ -81,8 +81,32 @@ Local v5.4.1 candidate evidence recorded on 2026-09-19:
 - official VIPTrue logo: 353196 bytes;
 - calibrated total-build budget: 22600000 bytes, PASS.
 
-Remote GitHub CI, release packaging and a restored-database migration test are
-still mandatory. These local results do not authorize a Production update.
+Remote validation recorded on 2026-09-19:
+
+- dashboard CI run `35443930085`: SUCCESS on candidate commit `8d91cd4b`;
+- database workflow run `35444213946`: SUCCESS on corrective test commit
+  `a1d986b7`; SQLite, PostgreSQL, TimescaleDB, MySQL and MariaDB all passed
+  migrations, migration checks and their complete test suites;
+- the only first-run failure was an upstream stale test mock that did not
+  accept the new `force_start` keyword. The test-only repair now verifies
+  normal create scheduling and forced modify scheduling; its focused local
+  test also passed;
+- the official backend image was pinned by digest and started against a
+  physical clone of the live TimescaleDB cluster on an internal-only Docker
+  network;
+- the clone began at Alembic revision `fb32155473c1`, migrated to
+  `48a6bcb8bba1`, exposed the backend socket and reported PasarGuard `5.4.1`;
+- all staging containers, the isolated network, temporary volume and temporary
+  files were removed after the successful check. Production remained at
+  v5.2.1 and revision `fb32155473c1`.
+
+The installed automatic backup archive passes ZIP integrity checks but its
+plain-SQL TimescaleDB payload is not independently restorable into a fresh
+2.27.1 cluster because it attempts to copy an upgraded internal catalog table
+into the fresh-install view of the same name. It is therefore not accepted as
+the database rollback source. A verified physical PostgreSQL recovery checkpoint
+is required immediately before Production cutover; the automatic logical
+backup/restore tooling must be repaired separately.
 
 Existing v5.2.1 Production release evidence follows.
 
@@ -180,15 +204,12 @@ restart Nginx, alter the database or modify customer traffic.
 
 ## 8. Remaining compatibility/operations work
 
-- Push `viptrue/v5.4.1` and require exact-head GitHub CI success.
-- Test the official v5.2.1 → v5.4.1 migration chain against a restored copy of
-  the 131 MB Production database. The chain starts at live revision
-  `fb32155473c1` and adds host cipher suites, a subscription-update index,
-  PostgreSQL BIGINT sequence widening and consolidated host ECH JSON.
-- Build and publish `v5.4.1-custom.1` only after those gates pass.
-- Immediately before the maintenance window, create and verify a fresh backup;
-  record its SHA256 and retain the current backend image/digest and dashboard
-  symlinks as rollback anchors.
+- Build and publish `v5.4.1-custom.1` from the validated candidate.
+- Immediately before the maintenance window, create and verify a physical
+  PostgreSQL recovery checkpoint; record its SHA256 and retain the current
+  backend image/digest and dashboard symlinks as rollback anchors.
+- Repair and restore-test the installer-managed TimescaleDB logical backup
+  format before treating those automatic archives as database recovery media.
 - Re-run role-aware Owner/Reseller/User, Node/API, Host and subscription smoke
   checks before and after Production cutover.
 - Keep old release tags immutable.
@@ -197,7 +218,7 @@ restart Nginx, alter the database or modify customer traffic.
 
 ## 9. Next Exact Step
 
-Commit and push the exact `viptrue/v5.4.1` candidate, wait for exact-head CI,
-then restore the verified Production backup into an isolated PostgreSQL staging
-instance and run the official v5.4.1 migration/startup checks. Do not update the
-Production backend or switch the dashboard symlink before both gates pass.
+Publish `v5.4.1-custom.1`, verify its release archive and checksum, create the
+physical pre-cutover database checkpoint, then perform the backend/dashboard
+cutover with immediate post-deployment smoke tests. Keep v5.2.1 and the previous
+dashboard symlink available until the new release has passed live validation.
