@@ -100,6 +100,10 @@ jobs:
                   retention-days: 1
 
     build-images:
+        # VIPTrue custom releases publish a dashboard archive, not a forked
+        # backend image. Production continues to use the official PasarGuard
+        # image, so custom tags must never require Docker Hub credentials.
+        if: ${{ github.event_name != 'release' || !contains(github.event.release.tag_name, '-custom.') }}
         needs: build-dashboard
         strategy:
             matrix:
@@ -152,6 +156,7 @@ jobs:
                   cache-to: type=gha,mode=max
 
     push-manifest:
+        if: ${{ github.event_name != 'release' || !contains(github.event.release.tag_name, '-custom.') }}
         needs: [build-images]
         runs-on: ubuntu-latest
         steps:
