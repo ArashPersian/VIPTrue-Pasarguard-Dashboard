@@ -1,0 +1,35 @@
+export const VIPTRUE_I18N_OVERRIDES = {
+  en: {
+    pasarguard: 'VIPTrue',
+    dashboardDescription: 'VIPTrue Management Dashboard',
+    supportUs: 'VIPTrue Support',
+    'nodes.addNewPasarGuardNode': 'Create New VIPTrue Node',
+    'nodes.title': 'Using VIPTrue-Node, you are able to scale up your connection quality by creating different nodes on different servers.',
+    'donation.title': 'Support VIPTrue',
+    'donation.message': 'Your support helps us improve VIPTrue and build better features for everyone!',
+  },
+  fa: {
+    pasarguard: 'VIPTrue',
+    dashboardDescription: 'داشبورد مدیریت VIPTrue',
+    supportUs: 'پشتیبانی VIPTrue',
+    'nodes.addNewPasarGuardNode': 'افزودن گره VIPTrue',
+    'donation.title': 'حمایت از VIPTrue',
+    'donation.message': 'حمایت شما به ما کمک می‌کند تا VIPTrue را بهبود بخشیم و ویژگی‌های بهتری برای همه بسازیم!',
+  },
+  ru: {
+    pasarguard: 'VIPTrue',
+    dashboardDescription: 'Панель управления VIPTrue',
+    supportUs: 'Поддержка VIPTrue',
+    'nodes.addNewPasarGuardNode': 'Добавить новый узел VIPTrue',
+    'donation.title': 'Поддержать VIPTrue',
+    'donation.message': 'Ваша поддержка помогает нам улучшать VIPTrue и создавать новые возможности.',
+  },
+  zh: {
+    pasarguard: 'VIPTrue',
+    dashboardDescription: 'VIPTrue 管理仪表板',
+    supportUs: 'VIPTrue 支持',
+    'nodes.addNewPasarGuardNode': '添加新的 VIPTrue 节点',
+    'donation.title': '支持 VIPTrue',
+    'donation.message': '您的支持将帮助我们改进 VIPTrue，并为所有人打造更好的功能！',
+  },
+} as const

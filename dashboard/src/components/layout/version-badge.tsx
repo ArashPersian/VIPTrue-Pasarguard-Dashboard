@@ -3,22 +3,24 @@ import { useVersionCheck } from '@/hooks/use-version-check'
 import { cn } from '@/lib/utils'
 import { useTranslation } from 'react-i18next'
 import { useSidebar } from '@/components/ui/sidebar'
+import { UPSTREAM_RELEASES_URL } from '@/constants/Project'
 
 interface VersionBadgeProps {
   currentVersion: string | null
+  enabled: boolean
   className?: string
 }
 
-export function VersionBadge({ currentVersion, className }: VersionBadgeProps) {
+export function VersionBadge({ currentVersion, enabled, className }: VersionBadgeProps) {
   const { t } = useTranslation()
-  const { hasUpdate, latestVersion, releaseUrl, isLoading } = useVersionCheck(currentVersion)
+  const { hasUpdate, latestVersion, releaseUrl, isLoading } = useVersionCheck(currentVersion, { enabled })
   const { state, isMobile } = useSidebar()
 
-  if (isLoading || !currentVersion) {
+  if (!enabled || isLoading || !currentVersion) {
     return null
   }
 
-  const releaseLink = releaseUrl || 'https://github.com/PasarGuard/panel/releases/latest'
+  const releaseLink = releaseUrl || UPSTREAM_RELEASES_URL
   const showText = isMobile || state === 'expanded'
   const showBadge = state === 'collapsed' && !isMobile
 

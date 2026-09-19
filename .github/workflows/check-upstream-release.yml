@@ -1,0 +1,43 @@
+name: Check Stable Upstream Release
+
+on:
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compare stable versions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          CURRENT="$(tr -d '[:space:]' < .viptrue/upstream-version)"
+          LATEST="$(gh api repos/PasarGuard/panel/releases/latest --jq '.tag_name')"
+
+          if [[ "$LATEST" == "$CURRENT" ]]; then
+            echo "Already compatible with $LATEST"
+            exit 0
+          fi
+
+          TITLE="Upstream update available: ${LATEST}"
+          EXISTING="$(gh issue list --state open --search "\"${TITLE}\" in:title" --json title --jq '.[].title' | head -n 1)"
+
+          if [[ "$EXISTING" == "$TITLE" ]]; then
+            echo "Open compatibility issue already exists."
+            exit 0
+          fi
+
+          gh issue create \
+            --title "$TITLE" \
+            --body "VIPTrue Dashboard is currently pinned to **${CURRENT}**. A newer stable PasarGuard release **${LATEST}** is available. Do not update the production panel yet. Rebase the VIPTrue branding branch onto the new tag, run owner/reseller tests, publish a compatible custom release, and only then update production."

@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
+import { getVIPTrueThemeSurface } from '@/brand/theme-surfaces'
 import { colorThemes, composeTheme, LEGACY_COLOR_THEME, LEGACY_THEME_TO_BASE, type ColorTheme, type BaseColor } from '@/constants/color-themes'
 import { applyThemeCustomization, DEFAULT_THEME_CUSTOMIZATION, parseThemeCustomization, type ThemeCustomization, type ThemeDensity, type ThemeNeutral, type ThemeSurface } from '@/lib/theme-color'
 
@@ -161,12 +162,16 @@ export function ThemeProvider({
 
     root.classList.remove('light', 'dark')
     root.classList.add(themeMode)
+    root.dataset.colorTheme = colorThemeName
     root.dataset.density = customizationValue.density
     root.dataset.surface = customizationValue.surface
     root.dataset.style = customizationValue.style
 
+    const themeVars = applyThemeCustomization(composeTheme(customizationValue.baseColor, colorThemeName, themeMode), customizationValue)
+
     applyThemeVars({
-      ...applyThemeCustomization(composeTheme(customizationValue.baseColor, colorThemeName, themeMode), customizationValue),
+      ...themeVars,
+      ...getVIPTrueThemeSurface(themeVars, themeMode),
       '--radius': radiusValue,
     })
   }, [])

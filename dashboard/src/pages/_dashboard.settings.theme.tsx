@@ -5,10 +5,12 @@ import { accentThemes, baseColorOrder, baseSwatches, colorThemeOrder, radiusPres
 import { ColorDotPicker } from '@/features/theme/color-dot-picker'
 import { SegmentedControl } from '@/features/theme/segmented-control'
 import { ThemePreview } from '@/features/theme/theme-preview'
+import { useAdmin } from '@/hooks/use-admin'
 import useDirDetection from '@/hooks/use-dir-detection'
 import { resolveTokenHex } from '@/lib/theme-color'
 import { cn } from '@/lib/utils'
 import { isPersianLocaleLanguage } from '@/utils/datePickerUtils'
+import { canReadResourcePage } from '@/utils/rbac'
 import {
   getChartViewTypePreference,
   getCoresListUseConfigModal,
@@ -71,6 +73,8 @@ export default function ThemeSettings() {
     resetToDefaults,
     isSystemTheme,
   } = useTheme()
+  const { admin } = useAdmin()
+  const canConfigureCoreEditor = canReadResourcePage(admin, 'cores')
   const dir = useDirDetection()
   const [isResetting, setIsResetting] = useState(false)
   const [datePickerPreference, setDatePickerPreferenceState] = useState<DatePickerPreference>('locale')
@@ -324,15 +328,17 @@ export default function ThemeSettings() {
           />
         </Section>
 
-        <Section icon={<FileJson2 className="text-primary h-4 w-4" />} title={t('theme.coresListEditor')} description={t('theme.coresListEditorDescription')}>
-          <div className="border-border/70 bg-muted/30 flex items-start justify-between gap-3 rounded-lg border p-3 sm:items-center sm:p-4">
-            <div className="min-w-0 space-y-0.5">
-              <p className="text-foreground text-sm font-medium">{t('theme.coresListEditorModal')}</p>
-              <p className="text-muted-foreground text-xs leading-relaxed">{t('theme.coresListEditorModalHint')}</p>
+        {canConfigureCoreEditor && (
+          <Section icon={<FileJson2 className="text-primary h-4 w-4" />} title={t('theme.coresListEditor')} description={t('theme.coresListEditorDescription')}>
+            <div className="border-border/70 bg-muted/30 flex items-start justify-between gap-3 rounded-lg border p-3 sm:items-center sm:p-4">
+              <div className="min-w-0 space-y-0.5">
+                <p className="text-foreground text-sm font-medium">{t('theme.coresListEditorModal')}</p>
+                <p className="text-muted-foreground text-xs leading-relaxed">{t('theme.coresListEditorModalHint')}</p>
+              </div>
+              <Switch className="shrink-0" checked={coresListUseConfigModal} onCheckedChange={handleCoresListUseConfigModalChange} aria-label={t('theme.coresListEditorModal')} />
             </div>
-            <Switch className="shrink-0" checked={coresListUseConfigModal} onCheckedChange={handleCoresListUseConfigModalChange} aria-label={t('theme.coresListEditorModal')} />
-          </div>
-        </Section>
+          </Section>
+        )}
 
         <section className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">

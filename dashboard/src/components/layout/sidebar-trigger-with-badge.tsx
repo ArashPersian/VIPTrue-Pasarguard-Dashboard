@@ -7,7 +7,7 @@ interface SidebarTriggerWithBadgeProps {
   showUpdateBadge?: boolean
 }
 
-export function SidebarTriggerWithBadge({ showUpdateBadge = true }: SidebarTriggerWithBadgeProps) {
+export function SidebarTriggerWithBadge({ showUpdateBadge = false }: SidebarTriggerWithBadgeProps) {
   const { currentVersion } = useSystemVersion({ enabled: showUpdateBadge })
   const normalizedVersion = currentVersion ? currentVersion.replace(/[^0-9.]/g, '') : null
   const { hasUpdate, isLoading } = useVersionCheck(normalizedVersion, { enabled: showUpdateBadge })

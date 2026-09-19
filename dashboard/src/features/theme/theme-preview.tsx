@@ -1,5 +1,6 @@
 import { accentThemes, baseColors } from '@/constants/color-themes'
 import { useTheme } from '@/app/providers/theme-provider'
+import { BrandLogo } from '@/components/brand/brand-logo'
 import { useTranslation } from 'react-i18next'
 
 export function ThemePreview() {
@@ -14,7 +15,7 @@ export function ThemePreview() {
         <p className="text-base font-semibold sm:text-lg">{t('theme.preview')}</p>
         <p className="text-muted-foreground text-xs leading-relaxed sm:text-sm">{t('theme.previewDescription')}</p>
       </div>
-      <div className="border-border/70 bg-muted/30 space-y-3 rounded-lg border p-3 sm:space-y-4 sm:p-4" style={{ borderRadius: radius }}>
+      <div className="viptrue-theme-preview border-border/70 bg-muted/30 space-y-3 rounded-lg border p-3 sm:space-y-4 sm:p-4" style={{ borderRadius: radius }} data-testid="viptrue-theme-preview">
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <p className="text-xs font-medium sm:text-sm">{t('theme.dashboardPreview')}</p>
@@ -22,10 +23,13 @@ export function ThemePreview() {
               {t('theme.currentTheme')}: {t(`theme.${customization.baseColor}`, { defaultValue: baseName })} / {t(`theme.${colorTheme}`, { defaultValue: accentName })} • {resolvedTheme === 'dark' ? t('theme.dark') : t('theme.light')}
             </p>
           </div>
-          <div className="flex gap-2">
-            <span className="bg-primary h-2.5 w-2.5 rounded-full" />
-            <span className="bg-border h-2.5 w-2.5 rounded-full" />
-            <span className="bg-accent h-2.5 w-2.5 rounded-full" />
+          <div className="flex items-center gap-3">
+            <BrandLogo compact className="h-8 w-24" />
+            <div className="flex gap-2">
+              <span className="bg-primary h-2.5 w-2.5 rounded-full" />
+              <span className="bg-border h-2.5 w-2.5 rounded-full" />
+              <span className="bg-accent h-2.5 w-2.5 rounded-full" />
+            </div>
           </div>
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

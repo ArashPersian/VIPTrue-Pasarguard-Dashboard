@@ -12,8 +12,9 @@ import { toast } from 'sonner'
 import { useSystemVersion } from '@/hooks/use-system-version'
 import { useAdmin } from '@/hooks/use-admin'
 import { isOwner } from '@/utils/rbac'
+import { UPSTREAM_RELEASES_URL } from '@/constants/Project'
 
-const VERSION_BANNER_STORAGE_KEY = 'version_update_banner_closed'
+const VERSION_BANNER_STORAGE_KEY = 'viptrue_version_update_banner_closed'
 const HOURS_TO_HIDE = 24
 
 interface BannerStorage {
@@ -81,7 +82,7 @@ export function VersionUpdateBanner() {
             setIsAnimating(true)
           }, 100)
         }
-      } catch (error) {
+      } catch {
         // If parsing fails, show the banner
         setIsVisible(true)
         setTimeout(() => {
@@ -120,7 +121,7 @@ export function VersionUpdateBanner() {
 
   if (!isOwnerAdmin || isLoading || !hasUpdate || !isVisible || !latestVersion || !normalizedVersion) return null
 
-  const releaseLink = releaseUrl || 'https://github.com/PasarGuard/panel/releases/latest'
+  const releaseLink = releaseUrl || UPSTREAM_RELEASES_URL
 
   return (
     <div

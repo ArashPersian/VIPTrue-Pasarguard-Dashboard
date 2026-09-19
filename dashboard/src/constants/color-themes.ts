@@ -123,7 +123,7 @@ function accentOverlay(name: string, lightPrimary: string, lightFg: string, dark
 }
 
 export const baseColors: Record<BaseColor, ColorThemeConfig> = {
-  default: basePalette('Neutral', 240, 5, 2, '216 46% 40%', '240 5% 98%', '216 46% 53%', '0 0% 5%'),
+  default: basePalette('VIPTrue', 342, 8, 6, '342 100% 57%', '0 0% 100%', '342 100% 64%', '336 25% 7%'),
   zinc: basePalette('Zinc', 240, 6, 3, '240 6% 10%', '0 0% 98%', '0 0% 98%', '240 6% 10%'),
   slate: basePalette('Slate', 215, 14, 8, '222 47% 11%', '210 40% 98%', '210 40% 98%', '222 47% 11%'),
   stone: basePalette('Stone', 30, 6, 4, '24 10% 10%', '60 9% 98%', '24 6% 83%', '24 10% 10%'),
@@ -154,7 +154,7 @@ export const baseColorOrder: BaseColor[] = ['default', 'zinc', 'slate', 'stone',
 export const colorThemeOrder: ColorTheme[] = ['default', 'inverse', 'red', 'rose', 'pink', 'orange', 'amber', 'yellow', 'green', 'teal', 'cyan', 'blue', 'indigo', 'violet']
 
 export const baseSwatches: Record<BaseColor, string> = {
-  default: '#4f6d8c',
+  default: '#ff3d8d',
   zinc: '#71717a',
   slate: '#64748b',
   stone: '#78716c',
