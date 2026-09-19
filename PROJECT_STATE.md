@@ -1,8 +1,8 @@
 # PROJECT_STATE
 
 Last updated: 2026-09-20 Europe/Berlin
-State version: `2026.09.20-v5.4.1-production.2`
-Status: **V5.4.1 DEPLOYED / LOGICAL RESTORE PROVEN / AUTHENTICATED ROLE CHECKS PENDING**
+State version: `2026.09.20-v5.4.1-production.3`
+Status: **V5.4.1 DEPLOYED / LOGICAL RESTORE PROVEN / OWNER + SUBSCRIPTION ACCEPTANCE PASSED / NON-OWNER ROLE SESSIONS PENDING**
 
 ## 1. Authoritative repository state
 
@@ -143,6 +143,27 @@ The scheduled backup now invokes the managed pinned bundle. The system
 PasarGuard CLI remains unchanged, and the pre-cutover physical checkpoint is
 still retained as an independent rollback source.
 
+Authenticated read-only Production acceptance recorded on 2026-09-20:
+
+- the saved `Arash` credential completed the normal dashboard login flow and
+  the live session identified the account as Owner;
+- the dashboard reported `VIPTrue Control Center (v5.4.1)` and `Up to date`;
+- Dashboard, Users, Statistics navigation, Hosts, Groups, Nodes, Admins, Admin
+  Roles, API Keys and Settings loaded without interface alerts;
+- the Users table populated normally, the subscription QR dialog rendered and
+  the dangerous `Revoke Subscription` and `Reset Usage` actions were only
+  identified, never invoked;
+- a token-safe server-local probe selected one active user without printing its
+  identity or subscription token: both `/sub/{token}/info` and the branded
+  HTML `/sub/{token}/` page returned HTTP 200, with valid JSON and non-empty
+  HTML respectively;
+- no user, subscription, role, credential, API key, provisioning, financial or
+  database record was changed by these acceptance checks.
+
+An independent Reseller/Operator browser session still requires an existing
+non-Owner test credential. No account was impersonated and no temporary account
+was created to manufacture that evidence.
+
 Existing v5.2.1 Production release evidence follows.
 
 Compatibility and PR validation completed on 2026-08-17:
@@ -242,9 +263,11 @@ restart Nginx, alter the database or modify customer traffic.
 
 ## 8. Remaining compatibility/operations work
 
-- Complete authenticated Owner/Reseller/User and subscription-path acceptance
-  checks when test credentials are available; unauthenticated API, dashboard,
-  database, node aggregate, Nginx and backend-log smoke gates already pass.
+- Complete an independent authenticated Reseller/Operator browser-session
+  acceptance check when an existing non-Owner test credential is available.
+  Owner and subscription-path acceptance now pass; unauthenticated API,
+  dashboard, database, node aggregate, Nginx and backend-log smoke gates also
+  pass.
 - Retain the physical pre-cutover checkpoint, official v5.2.1 backend reference
   and `v5.2.1-custom.1` dashboard rollback target until the observation window
   closes.
@@ -254,8 +277,8 @@ restart Nginx, alter the database or modify customer traffic.
 
 ## 9. Next Exact Step
 
-Use the logged-in Production browser session to complete read-only
-Owner/Reseller/User and subscription-path acceptance without creating,
-renewing, provisioning, deleting or financially mutating any record. Keep the
-physical checkpoint and v5.2.1 rollback anchors until those checks and the
-post-deployment observation window pass.
+Use an existing non-Owner Reseller/Operator test credential to complete the
+remaining read-only RBAC browser-session acceptance. Do not impersonate an
+account or create a temporary account for this check. Keep the physical
+checkpoint and v5.2.1 rollback anchors until that check and the post-deployment
+observation window pass.
