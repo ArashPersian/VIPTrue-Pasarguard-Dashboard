@@ -1,30 +1,26 @@
 # PROJECT_STATE
 
-Last updated: 2026-09-19 Europe/Berlin
-State version: `2026.09.19-v5.4.1-compatibility.2`
-Status: **V5.4.1 CI AND ISOLATED PRODUCTION-CLONE MIGRATION PASS / RELEASE PENDING / PRODUCTION UNCHANGED**
+Last updated: 2026-09-20 Europe/Berlin
+State version: `2026.09.20-v5.4.1-production.1`
+Status: **V5.4.1 RELEASED AND DEPLOYED / LIVE SMOKE GATES PASS / ROLLBACK RETAINED**
 
 ## 1. Authoritative repository state
 
 - Project: VIPTrue PasarGuard Dashboard
-- Current Production branch: `viptrue/v5.2.1`
-- Current Production branch head: `f20d0f0b8fce3b563b62d9df5e1990d3aac130bb`
-- Current Production upstream base: PasarGuard `v5.2.1`
-  (`e81877c0df64e5f5235f4355b0490b6bb38e3adc`)
-- Compatibility candidate branch: `viptrue/v5.4.1`
-- Compatibility candidate upstream base: PasarGuard `v5.4.1`
+- Current Production branch: `viptrue/v5.4.1`
+- Current Production branch head at release: `d548797689f9bc40d9253f6dbb7f95fdd37ea748`
+- Current Production upstream base: PasarGuard `v5.4.1`
   (`b56ffe369f542152c52c69733205baeaf3f6e4cd`)
 - Port method: three-way tree patch from official `v5.2.1` to the verified
   Production VIPTrue tree, applied onto official `v5.4.1`; five UI conflicts
   were resolved manually while retaining the new upstream architecture.
-- Previous release: `v5.1.0-custom.3`
-- Current Production release: `v5.2.1-custom.1`
-- Planned candidate release after all gates: `v5.4.1-custom.1`
-- Release archive SHA256: `e8e4bf96c5570396382f9559e3630d21512616f4f4c939533c3eb0507c23e6bc`
+- Previous Production release: `v5.2.1-custom.1`
+- Current Production release: `v5.4.1-custom.1`
+- Release archive SHA256: `383ddcb06499104041279eeea2ce48f00a448a8ce14b724bc6893a9f5a62bc76`
 
 The default `main` branch is not the authoritative VIPTrue customized line.
-Until the new release is published and live smoke gates pass,
-`viptrue/v5.2.1` remains the Production source of truth.
+The `viptrue/v5.4.1` branch and immutable `v5.4.1-custom.1` tag are the
+Production source of truth.
 
 ## 2. Compatibility policy
 
@@ -100,6 +96,27 @@ Remote validation recorded on 2026-09-19:
   files were removed after the successful check. Production remained at
   v5.2.1 and revision `fb32155473c1`.
 
+Release and deployment evidence recorded on 2026-09-20:
+
+- immutable release `v5.4.1-custom.1` was published from commit `d548797`;
+- dashboard release workflow `35446922987`: SUCCESS;
+- release-tag database workflow `35446922915`: SUCCESS across all five
+  supported database engines;
+- the published archive is 6659500 bytes and its SHA256 is
+  `383ddcb06499104041279eeea2ce48f00a448a8ce14b724bc6893a9f5a62bc76`;
+- a verified physical PostgreSQL recovery checkpoint was created immediately
+  before cutover and retained privately;
+- the official PasarGuard `v5.4.1` backend image was deployed and the live
+  database migrated from `fb32155473c1` to `48a6bcb8bba1`;
+- the checksum-verified dashboard installer atomically activated
+  `v5.4.1-custom.1` and retained `v5.2.1-custom.1` as the rollback target;
+- all containers remained running, required dependency health checks passed,
+  the public dashboard returned HTTP 200, protected API routes returned HTTP
+  401 without credentials, Nginx validation passed and no severe post-cutover
+  backend log entries were found;
+- the live node aggregate remained unchanged across cutover: seven connected,
+  four disabled and one pre-existing error.
+
 The installed automatic backup archive passes ZIP integrity checks but its
 plain-SQL TimescaleDB payload is not independently restorable into a fresh
 2.27.1 cluster because it attempts to copy an upgraded internal catalog table
@@ -169,7 +186,8 @@ The recoverable, non-secret evidence is:
   11:41:34 GMT`, aligned with the published release window;
 - TLS negotiation passed with TLS 1.3.
 
-Fresh read-only Production checkpoint captured from UM1 on 2026-09-19:
+Fresh read-only Production checkpoint captured from UM1 before cutover on
+2026-09-19:
 
 - the backend is the expected official `v5.2.1` image;
 - PostgreSQL/TimescaleDB is healthy and at the exact v5.2.1 migration head;
@@ -185,8 +203,10 @@ Exact server endpoints, host identity, image digest, database size, backup path
 and checksum, certificate paths and SSH metadata are deliberately retained only
 in the private UM1 inventory/operations context, not this public repository.
 
-No backend image, database, Nginx configuration, dashboard symlink, container
-or customer traffic was changed while collecting this checkpoint.
+That checkpoint was non-mutating. The subsequent verified deployment is
+recorded in section 4. The live Production source is now `viptrue/v5.4.1`, the
+backend is the official PasarGuard `v5.4.1` image, the database is at
+`48a6bcb8bba1`, and the active dashboard is `v5.4.1-custom.1`.
 
 ## 7. Documentation incident and recovery
 
@@ -204,21 +224,21 @@ restart Nginx, alter the database or modify customer traffic.
 
 ## 8. Remaining compatibility/operations work
 
-- Build and publish `v5.4.1-custom.1` from the validated candidate.
-- Immediately before the maintenance window, create and verify a physical
-  PostgreSQL recovery checkpoint; record its SHA256 and retain the current
-  backend image/digest and dashboard symlinks as rollback anchors.
 - Repair and restore-test the installer-managed TimescaleDB logical backup
   format before treating those automatic archives as database recovery media.
-- Re-run role-aware Owner/Reseller/User, Node/API, Host and subscription smoke
-  checks before and after Production cutover.
+- Complete authenticated Owner/Reseller/User and subscription-path acceptance
+  checks when test credentials are available; unauthenticated API, dashboard,
+  database, node aggregate, Nginx and backend-log smoke gates already pass.
+- Retain the physical pre-cutover checkpoint, official v5.2.1 backend reference
+  and `v5.2.1-custom.1` dashboard rollback target until the observation window
+  closes.
 - Keep old release tags immutable.
 - Treat Draft PR `#4` as historical/experimental; PR `#5` and the
-  `viptrue/v5.2.1` code line supersede it.
+  current `viptrue/v5.4.1` code line supersede it.
 
 ## 9. Next Exact Step
 
-Publish `v5.4.1-custom.1`, verify its release archive and checksum, create the
-physical pre-cutover database checkpoint, then perform the backend/dashboard
-cutover with immediate post-deployment smoke tests. Keep v5.2.1 and the previous
-dashboard symlink available until the new release has passed live validation.
+Repair the TimescaleDB logical backup/restore implementation and prove it by
+restoring a fresh automatic backup into an isolated same-version cluster. Do
+not remove the verified physical checkpoint or the v5.2.1 rollback anchors
+until that recovery test and the post-deployment observation window pass.
