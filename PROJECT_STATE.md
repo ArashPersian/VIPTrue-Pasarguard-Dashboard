@@ -1,8 +1,8 @@
 # PROJECT_STATE
 
 Last updated: 2026-09-20 Europe/Berlin
-State version: `2026.09.20-v5.4.1-production.3`
-Status: **V5.4.1 DEPLOYED / LOGICAL RESTORE PROVEN / OWNER + SUBSCRIPTION ACCEPTANCE PASSED / NON-OWNER ROLE SESSIONS PENDING**
+State version: `2026.09.20-v5.4.1-production.4`
+Status: **V5.4.1 DEPLOYED / LOGICAL RESTORE PROVEN / OWNER + SUBSCRIPTION + LIVE RESELLER RBAC PASSED**
 
 ## 1. Authoritative repository state
 
@@ -160,9 +160,24 @@ Authenticated read-only Production acceptance recorded on 2026-09-20:
 - no user, subscription, role, credential, API key, provisioning, financial or
   database record was changed by these acceptance checks.
 
-An independent Reseller/Operator browser session still requires an existing
-non-Owner test credential. No account was impersonated and no temporary account
-was created to manufacture that evidence.
+A live temporary-account Reseller RBAC acceptance was subsequently completed
+through the official PasarGuard API:
+
+- a unique strong credential existed only in process memory and was never
+  printed or persisted;
+- the temporary admin was created with the existing `reseller` role (HTTP 201)
+  and authenticated through `/api/admin/token` (HTTP 200);
+- the authenticated identity reported `reseller` and non-Owner;
+- Own-only Users and API Keys reads returned HTTP 200; the new account owned
+  zero users and no API key was created;
+- Nodes, Hosts, Cores, Settings, Admins and Admin Roles reads each returned HTTP
+  403;
+- the temporary account was deleted through the official API (HTTP 204), the
+  database residue count was zero and its issued token then returned HTTP 401.
+
+This proves live backend authentication and authorization for the Production
+Reseller role. A separate non-Owner visual browser pass is optional UI evidence,
+not an unresolved backend RBAC gate.
 
 Existing v5.2.1 Production release evidence follows.
 
@@ -263,11 +278,10 @@ restart Nginx, alter the database or modify customer traffic.
 
 ## 8. Remaining compatibility/operations work
 
-- Complete an independent authenticated Reseller/Operator browser-session
-  acceptance check when an existing non-Owner test credential is available.
-  Owner and subscription-path acceptance now pass; unauthenticated API,
-  dashboard, database, node aggregate, Nginx and backend-log smoke gates also
-  pass.
+- Optional: perform a non-Owner visual browser pass if a persistent dedicated
+  test credential is intentionally provisioned later. Live Reseller creation,
+  login, Own-only scope, forbidden infrastructure routes, cleanup and token
+  invalidation already pass through the official API.
 - Retain the physical pre-cutover checkpoint, official v5.2.1 backend reference
   and `v5.2.1-custom.1` dashboard rollback target until the observation window
   closes.
@@ -277,8 +291,7 @@ restart Nginx, alter the database or modify customer traffic.
 
 ## 9. Next Exact Step
 
-Use an existing non-Owner Reseller/Operator test credential to complete the
-remaining read-only RBAC browser-session acceptance. Do not impersonate an
-account or create a temporary account for this check. Keep the physical
-checkpoint and v5.2.1 rollback anchors until that check and the post-deployment
-observation window pass.
+The security-relevant Reseller RBAC acceptance is complete. Keep the physical
+checkpoint and v5.2.1 rollback anchors through the normal post-deployment
+observation window. A future visual non-Owner browser pass is optional and must
+use a deliberately provisioned credential without exposing it.
