@@ -1,0 +1,51 @@
+diff --git a/lib/pasarguard-backup.sh b/lib/pasarguard-backup.sh
+index 7597aa8..2278121 100644
+--- a/lib/pasarguard-backup.sh
++++ b/lib/pasarguard-backup.sh
+@@ -1050,9 +1050,45 @@ pg_dump_all_user_databases() {
+             return 1
+         fi
+ 
++        # A TimescaleDB cluster upgraded across extension releases can retain
++        # internal catalog relations as tables even when a fresh install of
++        # the same version exposes those relations as views. Dumping such
++        # extension-owned data makes an otherwise valid logical backup fail on
++        # restore (for example, COPY into _timescaledb_catalog.chunk_constraint
++        # when the destination relation is a view).
++        #
++        # When this database has no hypertables, those internal schemas contain
++        # no application data and are recreated completely by CREATE EXTENSION.
++        # Excluding them is therefore both lossless and portable. If hypertables
++        # exist, retain the complete TimescaleDB dump so its catalog metadata is
++        # never silently discarded.
++        local dump_args=(--clean --if-exists)
++        if [ "$has_ts" = "1" ]; then
++            local hypertable_count=""
++            if ! hypertable_count=$(docker exec -e PGPASSWORD="$backup_password" "$container_name" \
++                psql -X -U "$backup_user" -d "$dbname" -At \
++                -c "SELECT count(*) FROM timescaledb_information.hypertables;" 2>>"$log_file") ||
++                ! [[ "$hypertable_count" =~ ^[0-9]+$ ]]; then
++                echo "Could not count TimescaleDB hypertables for database '$dbname'; multi-DB backup is incomplete" >>"$log_file"
++                rm -rf "$out_dir"
++                return 1
++            fi
++
++            if [ "$hypertable_count" -eq 0 ]; then
++                dump_args+=(
++                    --exclude-schema=_timescaledb_catalog
++                    --exclude-schema=_timescaledb_config
++                    --exclude-schema=_timescaledb_internal
++                    --exclude-schema=timescaledb_experimental
++                    --exclude-schema=timescaledb_information
++                    --exclude-schema=timescaledb_toolkit_experimental
++                )
++            fi
++        fi
++
+         # Dump this database.
+         if ! docker exec -e PGPASSWORD="$backup_password" "$container_name" \
+-            pg_dump -U "$backup_user" -d "$dbname" --clean --if-exists >"$out_dir/$filename" 2>>"$log_file"; then
++            pg_dump -U "$backup_user" -d "$dbname" "${dump_args[@]}" >"$out_dir/$filename" 2>>"$log_file"; then
+             echo "pg_dump failed for database '$dbname'" >>"$log_file"
+             rm -rf "$out_dir"
+             return 1
